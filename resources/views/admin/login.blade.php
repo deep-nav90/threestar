@@ -26,7 +26,7 @@
 	<link rel="stylesheet" href="{{url('public/admin/assets/css/custom.css')}}">
 	<style>
 		body {
-			background: linear-gradient(0deg, rgba(0,0,0,1) 22%, rgba(145,112,5,1) 100%);
+			background: linear-gradient(0deg, rgba(0,0,0,1) 22%, rgba(202, 109, 87, 1) 100%);
 		}
 
 

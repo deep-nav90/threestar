@@ -12,8 +12,8 @@
 
 .tree__container__step__card p {
     
-    box-shadow: 0 0 4px 1px rgb(218 169 6);
-    background-color: #daa906;
+    box-shadow: 0 0 4px 1px rgb(87 180 202);
+    background-color: #57b4ca;
     border-color: #ffffff;
     border: 2px solid #ffffff;
 }

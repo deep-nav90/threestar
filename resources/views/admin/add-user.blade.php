@@ -38,7 +38,7 @@
 }
 
 .yellow-radio:checked {
-    background-color: #daa906!important;
+    background-color: #57b4ca!important;
 }
 
 

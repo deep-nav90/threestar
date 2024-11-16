@@ -103,7 +103,7 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <div class="modal-header" style="background-color: #daa905">
+      <div class="modal-header" style="background-color: #57b4ca">
 <!--         <button type="button" class="close" data-dismiss="modal">&times;</button>
  -->
  <div class="text-center" style="width: 100%;">       
@@ -231,7 +231,8 @@
 			});
 
 			$("#ok").on("click",function(){
-				$("#deleteForm").submit();
+        $("#myModal").modal("hide");
+				//$("#deleteForm").submit();
 			});
 		});
 	</script>

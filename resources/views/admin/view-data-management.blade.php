@@ -34,7 +34,7 @@
    color: #ff0000!important;
    }
    .dashboard_panel .add_imgae_box .user_img video.video_upload {
-   border: 2px solid #daa905;
+   border: 2px solid #57b4ca;
    }
    table#basic-datatables {
    margin-top: 10px!important;
@@ -93,7 +93,7 @@
    }
    /* Create an active/current tablink class */
    .tab button.active {
-   background-color: #daa905;
+   background-color: #57b4ca;
    }
    .tabcontent h3 {
    font-size: 20px;
