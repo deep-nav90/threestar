@@ -117,6 +117,8 @@ class UserController extends ResponseController
                             $query->orWhere(DB::raw('(CASE WHEN is_block = 0 THEN "Unblock" ELSE "Block" END)'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('DATE_FORMAT(dob, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT(country_code, " ", mobile_number)'), 'Like', '%' . $search . '%');
+                            $query->orWhere('custom_user_id', 'Like', '%' . $search . '%');
+                            $query->orWhere('name', 'Like', '%' . $search . '%');
                         });
 
                 $filter = $data->get()->count();

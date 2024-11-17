@@ -45,7 +45,7 @@
 			<form method="POST" id="validate_form">
 				{{@csrf_field()}}
 				<div class="logo-wrapper"><img src="{{url('public/admin/assets/img/logo.png')}}" alt="logo"/></div>
-				<span class="new-life">Admin Login</span>
+				<span class="new-life">Login</span>
 					@include('admin.layout.notification')
 				<div class="mt_form">
 					<!-- <div>

@@ -265,14 +265,14 @@
 
               $( row ).find('td:eq(1)').attr('data-id', data['id']).attr('key_type','custom_user_id').addClass('td_click').addClass('white_space');
               $( row ).find('td:eq(2)').attr('data-id', data['id']).attr('key_type','name').addClass('td_click').addClass('white_space');
-              $( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','dob').addClass('td_click');
-              $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','mobile_number').addClass('td_click');
+              $( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','dob_show').addClass('td_click');
+              $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','complete_mobile_number').addClass('td_click');
             },
             "columns": [
               {data: 'DT_RowIndex', name: 'DT_RowIndex'},
               {data: 'custom_user_id', name: 'custom_user_id'},
               {data: 'name', name: 'name'},
-              {data: 'dob', name: 'dob'},
+              {data: 'dob_show', name: 'dob_show'},
               {data: 'complete_mobile_number', name: 'complete_mobile_number'},
 			  {data: 'date_show', name: 'date_show'},
               {data: 'action', name: 'action', orderable: false, searchable: false},

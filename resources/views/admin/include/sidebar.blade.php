@@ -5,7 +5,7 @@
 				
 				<a href="javascript:void(0);" class="logo">
 					<img src="{{url('public/admin/assets/img/logo.png')}}" alt="navbar brand" class="navbar-brand">
-          			<h2 class="heading">Admin</h2>
+          			<!-- <h2 class="heading">Admin</h2> -->
 				</a>
 				<button class="navbar-toggler sidenav-toggler ml-auto hide_hum" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon">
@@ -45,7 +45,7 @@
 								</ul>
 							</div> -->
 						</li>
-						<li class= "nav-item <?php if(Request::is("admin/user-management") || Request::is("admin/tree-view/*") || Request::is("admin/edit-user/*") || Request::is("admin/add-user") || Request::is("admin/view-user/*")) {echo 'nav-item active';} else {echo '';}?>">
+						<li class= "nav-item <?php if(Request::is("admin/user-management") || Request::is("admin/tree-view/*") || Request::is("admin/view/*") || Request::is("admin/add-user") || Request::is("admin/view-user/*")) {echo 'nav-item active';} else {echo '';}?>">
 							<a href="{{route('admin.userManagement')}}">
 								<i class="fas fa-user"></i>
 								<p>User Management</p>
