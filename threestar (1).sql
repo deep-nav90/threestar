@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Nov 16, 2024 at 06:52 PM
+-- Generation Time: Nov 17, 2024 at 07:40 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -116,7 +116,8 @@ INSERT INTO `under_take_users` (`id`, `sponser_id`, `upline_id`, `user_id`, `del
 (2, 3, 3, 4, NULL, '2024-11-16 05:52:09', '2024-11-16 05:52:09'),
 (3, 3, 3, 5, NULL, '2024-11-16 06:32:42', '2024-11-16 06:32:42'),
 (4, 1, 1, 6, NULL, '2024-11-16 06:35:42', '2024-11-16 06:35:42'),
-(5, 1, 3, 7, NULL, '2024-11-16 07:32:35', '2024-11-16 07:32:35');
+(5, 1, 3, 7, NULL, '2024-11-16 07:32:35', '2024-11-16 07:32:35'),
+(6, 1, 6, 8, NULL, '2024-11-17 01:10:15', '2024-11-17 01:10:15');
 
 -- --------------------------------------------------------
 
@@ -129,7 +130,7 @@ CREATE TABLE `users` (
   `custom_user_id` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `dob` date NOT NULL,
-  `s_w_d` enum('Sun Off','Wife Off','Daughter Off') NOT NULL,
+  `s_w_d` enum('Son Off','Wife Off','Daughter Off') NOT NULL,
   `swd_name` varchar(255) DEFAULT NULL,
   `nomination_name` varchar(255) DEFAULT NULL,
   `nomination_dob` date DEFAULT NULL,
@@ -164,12 +165,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `custom_user_id`, `name`, `dob`, `s_w_d`, `swd_name`, `nomination_name`, `nomination_dob`, `country_code`, `mobile_number`, `email`, `adhar_number`, `pan_number`, `bank_account_number`, `bank_name`, `bank_ifsc_code`, `bank_branch_name`, `address`, `country`, `city`, `state`, `zip_code`, `password`, `device_type`, `device_token`, `refresh_token`, `is_block`, `remember_token`, `is_super_admin`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'TS000', 'Super Admin', '1994-11-11', 'Sun Off', NULL, 'SUPER ADMIN', NULL, '+91', '9876543210', 'superadmin@yopmail.com', '000000000000', '000000000', '00000000000', 'NONE', 'NONE', 'NONE', 'NONE', '', NULL, NULL, NULL, '$2y$12$qMgzlHJwqRpUjNzUBld//eDpCMDwfdMY4ZVzfVldq2iK5K/DulbA2', NULL, NULL, NULL, 0, 'oj4kVgh3LQ91yVEkXJU0kC7gcrzb3dT4', 1, '2024-11-11 21:00:12', '2024-11-16 11:37:08', NULL),
-(3, 'TS001', 'Shilpa', '2012-11-06', 'Sun Off', 'ABC', NULL, '2012-11-06', '+91', '562346567', 'hosttesting@yopmail.com', '3543543', '23424234', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '9876543210', '$2y$12$KerkLO7q7l1yVIqhJNHX0OkD9PRUH5h.Ce9rMOtxhblWjYqC8tSai', NULL, NULL, NULL, 0, 'WtgWvZTXaCSaVGbxxXxNy8oCQv0Rvjvd', 0, '2024-11-16 02:25:25', '2024-11-16 05:51:10', NULL),
-(4, 'TS002', 'JATIN', '2012-11-13', 'Sun Off', 'jhf', NULL, NULL, '+91', '2233223322', 'hosttesting@yopmail.com', '3543543', '23424234', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '04783', '$2y$12$cnbrR79Y2BZc1hF3AzeaPeiXOnj0agbquL./1auCK4mettgLAUkMC', NULL, NULL, NULL, 0, NULL, 0, '2024-11-16 05:52:09', '2024-11-16 05:52:09', NULL),
-(5, 'TS003', 'ANGEL', '2012-11-13', 'Sun Off', 'sdfsdf', NULL, NULL, '+91', '5435345345', 'hosttesting@yopmail.com', '3543543', '23424234', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '04783', '$2y$12$IimvguPZbSz6XaRpOqgdYup9GYJyvEOrEh4UlFhSd7NfA4yS6cDMq', NULL, NULL, NULL, 0, NULL, 0, '2024-11-16 06:32:42', '2024-11-16 06:32:42', NULL),
-(6, 'TS004', 'UPDER SUPER', '2012-11-13', 'Sun Off', 'sdsdg', NULL, NULL, '+91', '435345345', 'hosttesting@yopmail.com', '345345345', '4534534', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '9876543210', '$2y$12$9aeP6NEktzJ7vts4JeMJmOQ2l0Y6rDJGLVDKjVwZ3qouNw3VTjc.G', NULL, NULL, NULL, 0, NULL, 0, '2024-11-16 06:35:42', '2024-11-16 06:35:42', NULL),
-(7, 'TS005', 'Kiran', '2012-11-06', 'Sun Off', 'jhgfdgfh', NULL, NULL, '+91', '7765445564', 'hosttesting@yopmail.com', '3543543', '23424234', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '9876543210', '$2y$12$M5lYAOSEeFZqXhtzIRvvCuIOJJ6Q9kSlpgGbRzW/Apw4rPdzvYqgi', NULL, NULL, NULL, 0, NULL, 0, '2024-11-16 07:32:35', '2024-11-16 07:32:35', NULL);
+(1, 'TS000', 'Super Admin', '1994-11-11', 'Son Off', NULL, 'SUPER ADMIN', NULL, '+91', '9876543210', 'superadmin@yopmail.com', '000000000000', '000000000', '00000000000', 'NONE', 'NONE', 'NONE', 'NONE', '', NULL, NULL, NULL, '$2y$12$qMgzlHJwqRpUjNzUBld//eDpCMDwfdMY4ZVzfVldq2iK5K/DulbA2', NULL, NULL, NULL, 0, 'QN653OxIG5VG0IjupRMwzh91icvdzMpI', 1, '2024-11-11 21:00:12', '2024-11-17 00:56:19', NULL),
+(3, 'TS001', 'Shilpa', '2012-11-06', 'Son Off', 'ABC', NULL, '2012-11-06', '+91', '562346567', 'hosttesting@yopmail.com', '3543543', '23424234', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '9876543210', '$2y$12$KerkLO7q7l1yVIqhJNHX0OkD9PRUH5h.Ce9rMOtxhblWjYqC8tSai', NULL, NULL, NULL, 0, 'WtgWvZTXaCSaVGbxxXxNy8oCQv0Rvjvd', 0, '2024-11-16 02:25:25', '2024-11-16 05:51:10', NULL),
+(4, 'TS002', 'JATIN', '2012-11-13', 'Son Off', 'jhf', NULL, NULL, '+91', '2233223322', 'hosttesting@yopmail.com', '3543543', '23424234', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '04783', '$2y$12$cnbrR79Y2BZc1hF3AzeaPeiXOnj0agbquL./1auCK4mettgLAUkMC', NULL, NULL, NULL, 0, NULL, 0, '2024-11-16 05:52:09', '2024-11-16 05:52:09', NULL),
+(5, 'TS003', 'ANGEL', '2012-11-13', 'Son Off', 'sdfsdf', NULL, NULL, '+91', '5435345345', 'hosttesting@yopmail.com', '3543543', '23424234', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '04783', '$2y$12$IimvguPZbSz6XaRpOqgdYup9GYJyvEOrEh4UlFhSd7NfA4yS6cDMq', NULL, NULL, NULL, 0, NULL, 0, '2024-11-16 06:32:42', '2024-11-16 06:32:42', NULL),
+(6, 'TS004', 'UPDER SUPER', '2012-11-13', 'Son Off', 'sdsdg', NULL, NULL, '+91', '435345345', 'hosttesting@yopmail.com', '345345345', '4534534', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '9876543210', '$2y$12$9aeP6NEktzJ7vts4JeMJmOQ2l0Y6rDJGLVDKjVwZ3qouNw3VTjc.G', NULL, NULL, NULL, 0, NULL, 0, '2024-11-16 06:35:42', '2024-11-16 06:35:42', NULL),
+(7, 'TS005', 'Kiran', '2012-11-06', 'Son Off', 'jhgfdgfh', NULL, NULL, '+91', '7765445564', 'hosttesting@yopmail.com', '3543543', '23424234', NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '9876543210', '$2y$12$M5lYAOSEeFZqXhtzIRvvCuIOJJ6Q9kSlpgGbRzW/Apw4rPdzvYqgi', NULL, NULL, NULL, 0, NULL, 0, '2024-11-16 07:32:35', '2024-11-16 07:32:35', NULL),
+(8, 'TS006', 'Prabjot', '2012-11-06', 'Son Off', 'Rajinder', NULL, NULL, '+91', '5675765753', 'hosttesting@yopmail.com', '3543543', NULL, NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '9876543210', '$2y$12$pR17MN/zsvZxoRETaHVh5eq8VRPgaDJUBp7NV1qlkHGzsEblSHyQK', NULL, NULL, NULL, 0, NULL, 0, '2024-11-17 01:10:15', '2024-11-17 01:10:15', NULL);
 
 --
 -- Indexes for dumped tables
@@ -243,13 +245,13 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `under_take_users`
 --
 ALTER TABLE `under_take_users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables

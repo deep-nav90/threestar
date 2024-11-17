@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('custom_user_id');
             $table->string('name');
             $table->date('dob');
-            $table->enum('s_w_d',['Sun Off', 'Wife Off', 'Daughter Off']);
+            $table->enum('s_w_d',['Son Off', 'Wife Off', 'Daughter Off']);
             $table->string('swd_name')->nullable();
             $table->string('nomination_name')->nullable();
             $table->date('nomination_dob')->nullable();

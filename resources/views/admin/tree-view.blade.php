@@ -22,6 +22,10 @@ body[data-background-color=dark] .main-panel {
     color: rgb(0 0 0) !important;
 }
 
+div#my_tree {
+    padding-left: 1rem;
+}
+
 </style>
 
 <input type="hidden" id="arrayTree" arrayTree="{{$underTakeUsers}}">
@@ -34,6 +38,9 @@ body[data-background-color=dark] .main-panel {
 							<ol class="breadcrumb">
 								<li class="breadcrumb-item"><a href="{{route('admin.dashboard')}}"><i class="fas fa-home"></i></a></li>
 								<li class="breadcrumb-item active"><a href="{{route('admin.userManagement')}}">User Management</a></li>
+                                @if($admin->id != $userID)
+                                <li class="breadcrumb-item active"><a href="{{route('admin.viewUserDetails',base64_encode($userID))}}">User Details</a></li>
+                                @endif()
 								<li class="breadcrumb-item remove_hover">Tree View</li>
 								<!-- <li class="breadcrumb-item active" aria-current="page">Data</li> -->
 							</ol>

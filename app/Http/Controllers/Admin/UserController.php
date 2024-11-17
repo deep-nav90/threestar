@@ -46,7 +46,7 @@ class UserController extends ResponseController
             if($login == 1){
                 return redirect(route('admin.dashboard'));
             }else{
-                Session::flash('danger','Please enter valid mobile number or password.');
+                Session::flash('danger','Please enter valid User ID or Password.');
                 return back();
             }
         }
@@ -192,7 +192,8 @@ class UserController extends ResponseController
     public function addUser(Request $request) {
         if($request->isMethod('GET')) {
             $allUserIds = User::whereDeletedAt(null)->whereIsBlock(0)->pluck('custom_user_id');
-            return view('admin.add-user', compact('allUserIds'));
+            $admin = auth()->guard('admin')->user();
+            return view('admin.add-user', compact('allUserIds', 'admin'));
         }
 
         if($request->isMethod('POST')) {

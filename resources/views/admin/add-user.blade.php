@@ -87,9 +87,9 @@ label#swd_name-error {
 
 												<select class="form-control form-group" style="padding: .6rem 1rem; position: relative;" name="sponser_id" placeholder="Select Sponser ID">
 												<option value="">Select Sponser ID</option>
-													@foreach($allUserIds as $customUserID)
-													<option value="{{$customUserID}}">{{$customUserID}}</option>
-													@endforeach()
+													
+													<option value="{{$admin->custom_user_id}}">{{$admin->custom_user_id}}</option>
+													
 												</select>
 												@if($errors->first('sponser_id'))
 													<span class="text-danger error">{{$errors->first('sponser_id')}}</span>
@@ -165,7 +165,7 @@ label#swd_name-error {
 												<!-- Checkboxes -->
 												<div class="relation-checkboxes" style="display: flex; gap: 15px; margin-right: 15px;">
 													<label>
-														<input type="radio" checked name="s_w_d" value="Sun Off" class="yellow-radio"> S/O
+														<input type="radio" checked name="s_w_d" value="Son Off" class="yellow-radio"> S/O
 													</label>
 													<label>
 														<input type="radio" name="s_w_d" value="Daughter Off" class="yellow-radio"> D/O
