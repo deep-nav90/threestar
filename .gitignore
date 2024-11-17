@@ -6,7 +6,6 @@
 /storage/*.key
 /vendor
 /docs/*
-/.env
 .env.backup
 .phpunit.result.cache
 /docker-compose.override.yml
@@ -18,4 +17,3 @@ npm-debug.log
 /.vscode
 *.zip
 /composer.lock
-/composer.json
