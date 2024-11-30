@@ -3,6 +3,16 @@
 @section('title','Dashboard')
 @section('content')
 
+<style>
+	span.total_count {
+    color: #ffff;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: right;
+}
+</style>
+
 		<div class="main-panel dashboard_panel">
 			<div class="content">
 				<div class="page-inner" style="padding-right: 12px;">
@@ -20,17 +30,89 @@
 						<div class="col-md-6 mb_bottom ">
 							<a href="{{route('admin.userManagement')}}" class="hover_box">
 								<div class="box">
+									<span class="total_count">{{$totalUsers}}</span>
 									<div class="icon_text">
 										<i class="fas fa-user"></i>
 										<h2>
-											User Management
+											Total No. Of Users
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+						
+						<div class="col-md-6 mb_bottom ">
+							<a href="{{route('admin.userManagement')}}" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$myWalletCreditFormat}}</span>
+									<div class="icon_text">
+									<i class="fas fa-wallet"></i>
+										<h2>
+											My Wallet Balance
 										</h2>
 									</div>
 								</div>
 							</a>
 						</div>
 						
+
+						
+						
 					</div>
+					@if(Auth::guard('admin')->user()->is_super_admin == 1)
+					<div class="row mt-5">
+						<div class="col-md-6 mb_bottom ">
+							<a href="{{route('admin.userManagement')}}" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$adminWalletAmount}}</span>
+									<div class="icon_text">
+										<i class="fas fa-wallet"></i>
+										<h2>
+											Total Credit Amount
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="{{route('admin.userManagement')}}" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$totalCreditAmtFormat}}</span>
+									<div class="icon_text">
+										<i class="fas fa-wallet"></i>
+										<h2>
+											Users Wallet Credit
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+					</div>
+					@endif()
+					<div class="row mt-5">
+						@if(Auth::guard('admin')->user()->is_super_admin == 1)
+							<div class="col-md-6 mb_bottom ">
+								<a href="{{route('admin.userManagement')}}" class="hover_box">
+									<div class="box">
+										<span class="total_count">{{$totalAmount}}</span>
+										<div class="icon_text">
+											<i class="fas fa-rupee-sign"></i>
+											<h2>
+												Total Amount
+											</h2>
+										</div>
+									</div>
+								</a>
+							</div>
+
+						
+						@endif()
+					</div>
+					
+
 				</div>
 			</div>
 		</div>

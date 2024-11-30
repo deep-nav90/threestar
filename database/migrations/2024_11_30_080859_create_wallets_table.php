@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('under_take_users', function (Blueprint $table) {
+        Schema::create('wallets', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('sponser_id')->unsigned();
-            $table->foreign('sponser_id')->references('id')->on('users')->onDeleted('cascade');
+            $table->bigInteger('credit_user_id')->unsigned();
+            $table->foreign('credit_user_id')->references('id')->on('users')->onDeleted('cascade');
             $table->bigInteger('upline_id')->unsigned();
             $table->foreign('upline_id')->references('id')->on('users')->onDeleted('cascade');
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDeleted('cascade');
-            $table->longText('sequece_wise_user_added_record_ids')->nullable();
-            $table->bigInteger('amount')->default(0);
+            $table->double('percentage')->default(0);
+            $table->bigInteger('total_amount');
+            $table->bigInteger('credit_user_amount');
+            $table->enum('type_of_credit',['By Tree','By Sponser']);
             $table->softDeletes();
             $table->timestamps();
         });
@@ -31,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('under_take_users');
+        Schema::dropIfExists('wallets');
     }
 };

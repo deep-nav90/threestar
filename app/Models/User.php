@@ -44,6 +44,7 @@ class User extends Authenticatable
         'state',
         'zip_code',
         'password',
+        'user_level'
     ];
 
     /**

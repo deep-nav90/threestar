@@ -45,6 +45,8 @@ Route::group(['middleware'=>['loginAuthenticate'], 'namespace' => 'Admin','prefi
 
     Route::match(['GET', 'POST'], 'user-management',[UserController::class, 'userManagement'])->name('userManagement');
 
+    Route::match(['GET', 'POST'], 'wallet-management',[UserController::class, 'walletManagement'])->name('walletManagement');
+
     Route::match(['GET','POST'],'add-user',[UserController::class, 'addUser'])->name('addUser');
 
     Route::post('check-exist-mobile-number-user', [UserController::class, 'checkExistsMobileNumber'])->name('checkExistsMobileNumber');
@@ -55,6 +57,8 @@ Route::group(['middleware'=>['loginAuthenticate'], 'namespace' => 'Admin','prefi
     Route::get('tree-view/{user_id}', [UserController::class, 'treeView'])->name('treeView');
 
     Route::get('view/{user_id}', [UserController::class, 'viewUserDetails'])->name('viewUserDetails');
+
+    Route::get('wallet-view/{wallet_id}', [UserController::class, 'viewWalletDetails'])->name('viewWalletDetails');
 
     Route::get('logout', [UserController::class,'logout'])->name('logout');
     

@@ -104,7 +104,12 @@ label#swd_name-error {
 											<select class="form-control form-group" style="padding: .6rem 1rem; position: relative;" name="upline_id" placeholder="Select Upline ID">
 												<option value="">Select Sponser ID</option>
 													@foreach($allUserIds as $customUserID)
+													@if(in_array($customUserID, $disabledUserIds))
+													<option disabled value="{{$customUserID}}">{{$customUserID}}</option>
+													@else
 													<option value="{{$customUserID}}">{{$customUserID}}</option>
+													@endif()
+													
 													@endforeach()
 												</select>
 												@if($errors->first('upline_id'))

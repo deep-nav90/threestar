@@ -191,6 +191,13 @@
 											</td>
 										</tr>
 
+										<tr>
+											<th>Amount Added</th>
+											<td>
+												{{($userDetails->sponserDetails->amount / 100) . ' (INR)' ?? "N/A"}}
+											</td>
+										</tr>
+
 
 									</tbody>
 								</table>

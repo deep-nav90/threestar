@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->string('zip_code')->nullable();
             $table->string('password');
+            $table->integer('user_level')->default(0);
             $table->enum('device_type',['None','Ios','Android'])->nullable();
             $table->longText('device_token')->nullable();
             $table->text('refresh_token')->nullable();

@@ -51,6 +51,9 @@
 								<p>User Management</p>
 								<!-- <span class="caret"></span> -->
 							</a>
+
+							
+
 							<!-- <div class="collapse" id="base">
 								<ul class="nav nav-collapse">
 									<li>
@@ -106,6 +109,16 @@
 								</ul>
 							</div> -->
 						</li>
+
+
+						<li class= "nav-item <?php if(Request::is("admin/wallet-management") || Request::is("admin/wallet-view/*")) {echo 'nav-item active';} else {echo '';}?>">
+							<a href="{{route('admin.walletManagement')}}">
+								<i class="fas fa-user"></i>
+								<p>Wallet Management</p>
+								<!-- <span class="caret"></span> -->
+							</a>
+						</li>
+
 
 
 						<li class="nav-item <?php if(Request::is("admin/change-password")) {echo 'nav-item active';} else {echo '';}?>">
