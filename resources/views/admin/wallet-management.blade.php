@@ -54,7 +54,7 @@
 									<th>Upline User</th>
 									<th>Under User</th>
 									<th>Percentage/Flat</th>
-									<th>Total Amount</th>
+									<!-- <th>Total Amount</th> -->
                                     <th>Credit Amount</th>
 									<th>Created At</th>
 
@@ -255,15 +255,16 @@
               $( row ).find('td:eq(1)').attr('data-id', data['id']).attr('key_type','upline_user_id_with_name').addClass('td_click').addClass('white_space');
               $( row ).find('td:eq(2)').attr('data-id', data['id']).attr('key_type','under_user_id_with_name').addClass('td_click').addClass('white_space');
               $( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','percentag_or_flat_amount').addClass('td_click');
-              $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_in_rupees').addClass('td_click');
-              $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','credit_user_amount_in_rupees').addClass('td_click');
-            },
+              //$( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_in_rupees').addClass('td_click');
+              $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','credit_user_amount_in_rupees').addClass('td_click');
+			  $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
+			},
             "columns": [
               {data: 'DT_RowIndex', name: 'DT_RowIndex'},
               {data: 'upline_user_id_with_name', name: 'upline_user_id_with_name'},
               {data: 'under_user_id_with_name', under_user_id_with_name: 'name'},
               {data: 'percentag_or_flat_amount', name: 'percentag_or_flat_amount'},
-              {data: 'total_amount_in_rupees', name: 'total_amount_in_rupees'},
+              //{data: 'total_amount_in_rupees', name: 'total_amount_in_rupees'},
 			  {data: 'credit_user_amount_in_rupees', name: 'credit_user_amount_in_rupees'},
               {data: 'date_show', name: 'date_show'},
               {data: 'action', name: 'action', orderable: false, searchable: false},

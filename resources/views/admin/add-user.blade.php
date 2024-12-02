@@ -88,7 +88,14 @@ label#swd_name-error {
 												<select class="form-control form-group" style="padding: .6rem 1rem; position: relative;" name="sponser_id" placeholder="Select Sponser ID">
 												<option value="">Select Sponser ID</option>
 													
-													<option value="{{$admin->custom_user_id}}">{{$admin->custom_user_id}}</option>
+												@foreach($allUserIds as $customUserID)
+												@if(in_array($customUserID, $disabledUserIds))
+												<option value="{{$customUserID}}">{{$customUserID}}</option>
+												@else
+												<option value="{{$customUserID}}">{{$customUserID}}</option>
+												@endif()
+												
+												@endforeach()
 													
 												</select>
 												@if($errors->first('sponser_id'))
@@ -102,7 +109,7 @@ label#swd_name-error {
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
 											<select class="form-control form-group" style="padding: .6rem 1rem; position: relative;" name="upline_id" placeholder="Select Upline ID">
-												<option value="">Select Sponser ID</option>
+												<option value="">Select Upline ID</option>
 													@foreach($allUserIds as $customUserID)
 													@if(in_array($customUserID, $disabledUserIds))
 													<option disabled value="{{$customUserID}}">{{$customUserID}}</option>

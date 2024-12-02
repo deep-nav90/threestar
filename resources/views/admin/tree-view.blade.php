@@ -87,7 +87,7 @@ div#my_tree {
         array.forEach((node) => {
             const currentId = sequence.count; // Generate a sequential ID
             tree[currentId] = {}; // Create an empty object for children
-            params[currentId] = { trad: node.userDetail.name + " ("+node.peopleCount+")", name: node.userDetail.custom_user_id, isLevel: node.isLevel }; // Add to params object
+            params[currentId] = { trad: node.userDetail.name + "-" + node.userDetail.custom_user_id + " ("+node.peopleCount+")", name: node.userDetail.custom_user_id, isLevel: node.isLevel }; // Add to params object
 
             sequence.count++; // Increment the sequence
 

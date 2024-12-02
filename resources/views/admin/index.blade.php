@@ -93,7 +93,7 @@
 					</div>
 					@endif()
 					<div class="row mt-5">
-						@if(Auth::guard('admin')->user()->is_super_admin == 1)
+						<!-- @if(Auth::guard('admin')->user()->is_super_admin == 1)
 							<div class="col-md-6 mb_bottom ">
 								<a href="{{route('admin.userManagement')}}" class="hover_box">
 									<div class="box">
@@ -109,7 +109,37 @@
 							</div>
 
 						
-						@endif()
+						@endif() -->
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="{{route('admin.userManagement')}}" class="hover_box">
+								<div class="box">
+									<span class="total_count">0</span>
+									<div class="icon_text">
+									<i class="fas fa-gift"></i>
+										<h2>
+											My Reward
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="{{route('admin.userManagement')}}" class="hover_box">
+								<div class="box">
+									<span class="total_count">Level {{Auth::guard('admin')->user()->user_level}}</span>
+									<div class="icon_text">
+									<i class="fas fa-level-up-alt"></i>
+										<h2>
+											My Level
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
 					</div>
 					
 
