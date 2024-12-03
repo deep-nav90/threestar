@@ -239,7 +239,7 @@ class UserController extends ResponseController
     public function addUser(Request $request) {
         if($request->isMethod('GET')) {
 
-            //return $this->calculateLevelAndAmount("1,19,20", 1, 20);
+            //return $this->calculateLevelAndAmount("1,62,69,70,71", 1, 71, 2000,null);
             $admin = auth()->guard('admin')->user();
             if(!$admin){
                 return redirect(route('admin.login'));
@@ -455,7 +455,16 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $collection = collect($filteredRecords);
+
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -503,7 +512,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -551,7 +567,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -599,7 +622,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -647,7 +677,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -695,7 +732,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -743,7 +787,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -791,7 +842,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -839,7 +897,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -887,7 +952,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -935,7 +1007,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -983,7 +1062,14 @@ class UserController extends ResponseController
                     // Re-index the collection
                     $filteredRecords = $filteredRecords->values()->all();
 
-                    if(count($filteredRecords) >= $levelRecord['number_of_users']) {
+                    $total = $collection->sum(function ($item) {
+                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
+                    });
+
+                    $total = $total - 3; //3 will be use for check left-right-middle line only
+
+
+                    if($total >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
