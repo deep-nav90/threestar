@@ -44,7 +44,9 @@ class User extends Authenticatable
         'state',
         'zip_code',
         'password',
-        'user_level'
+        'user_level',
+        'balance_amount',
+        'winnig_reward'
     ];
 
     /**

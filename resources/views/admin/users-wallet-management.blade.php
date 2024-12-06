@@ -1,5 +1,5 @@
 @extends('admin.layout.layout')
-@section('title','Wallet Management')
+@section('title','Users Wallet Management')
 @section('content')
 
 <style>
@@ -32,7 +32,7 @@
 						<nav aria-label="breadcrumb">
 							<ol class="breadcrumb">
 								<li class="breadcrumb-item"><a href="{{route('admin.dashboard')}}"><i class="fas fa-home"></i></a></li>
-								<li class="breadcrumb-item remove_hover">Wallet Management</li>
+								<li class="breadcrumb-item remove_hover">Users Wallet Management</li>
 								<!-- <li class="breadcrumb-item active" aria-current="page">Data</li> -->
 							</ol>
 						</nav>
@@ -51,12 +51,13 @@
 								<thead>
 									<tr>
 									<th>Sr. No.</th>
-									<th>Upline User</th>
-									<th>Under User</th>
-									<th>Percentage/Flat</th>
+									<th>User Name</th>
+									<th>Tree Amount</th>
+									<th>Direct Amount</th>
 									<!-- <th>Total Amount</th> -->
-                                    <th>Credit Amount</th>
-									<th>Created At</th>
+                                    <th>Total Amount</th>
+                                    <th>Balance Amount</th>
+									<th>Updated At</th>
 
 									<th>Action</th>
 
@@ -237,7 +238,7 @@
             "processing": true,
             "serverSide": true,
             "ajax": {
-                "url": "{{ route('admin.walletManagement') }}",
+                "url": "{{ route('admin.usersWalletManagement') }}",
                 "type": "POST",
                 "data" : dataGET,
               complete:function(){
@@ -252,20 +253,22 @@
             },
             createdRow: function( row, data, dataIndex ) {
 
-              $( row ).find('td:eq(1)').attr('data-id', data['id']).attr('key_type','upline_user_id_with_name').addClass('td_click').addClass('white_space');
-              $( row ).find('td:eq(2)').attr('data-id', data['id']).attr('key_type','under_user_id_with_name').addClass('td_click').addClass('white_space');
-              $( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','percentag_or_flat_amount').addClass('td_click');
+              $( row ).find('td:eq(1)').attr('data-id', data['id']).attr('key_type','user_name_with_id').addClass('td_click').addClass('white_space');
+              $( row ).find('td:eq(2)').attr('data-id', data['id']).attr('key_type','tree_amount').addClass('td_click').addClass('white_space');
+              $( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','direct_amount').addClass('td_click');
               //$( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_in_rupees').addClass('td_click');
-              $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','credit_user_amount_in_rupees').addClass('td_click');
-			  $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
+              $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_credit').addClass('td_click');
+			  $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','show_balance_amount').addClass('td_click');
+              $( row ).find('td:eq(6)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
 			},
             "columns": [
               {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-              {data: 'upline_user_id_with_name', name: 'upline_user_id_with_name'},
-              {data: 'under_user_id_with_name', name: 'name'},
-              {data: 'percentag_or_flat_amount', name: 'percentag_or_flat_amount'},
+              {data: 'user_name_with_id', name: 'user_name_with_id'},
+              {data: 'tree_amount', name: 'tree_amount'},
+              {data: 'direct_amount', name: 'direct_amount'},
+              {data: 'total_amount_credit', name: 'total_amount_credit'},
               //{data: 'total_amount_in_rupees', name: 'total_amount_in_rupees'},
-			  {data: 'credit_user_amount_in_rupees', name: 'credit_user_amount_in_rupees'},
+			  {data: 'show_balance_amount', name: 'show_balance_amount'},
               {data: 'date_show', name: 'date_show'},
               {data: 'action', name: 'action', orderable: false, searchable: false},
             ],

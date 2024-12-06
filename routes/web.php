@@ -61,6 +61,9 @@ Route::group(['middleware'=>['loginAuthenticate'], 'namespace' => 'Admin','prefi
     Route::get('wallet-view/{wallet_id}', [UserController::class, 'viewWalletDetails'])->name('viewWalletDetails');
 
     Route::get('logout', [UserController::class,'logout'])->name('logout');
+
+    Route::match(['GET', 'POST'], 'users-wallet-management',[UserController::class, 'usersWalletManagement'])->name('usersWalletManagement');
+    Route::match(['GET', 'POST'],'users-wallet-view/{wallet_id}', [UserController::class, 'usersViewWalletDetails'])->name('usersViewWalletDetails');
     
 
     Route::post('delete-user','UserController@deleteUser')->name('deleteUser');

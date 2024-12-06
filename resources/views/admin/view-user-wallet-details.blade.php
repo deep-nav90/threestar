@@ -1,5 +1,5 @@
 @extends('admin.layout.layout')
-@section('title','Wallet Management')
+@section('title','User Wallet Details')
 @section('content')
 
 <style>
@@ -32,13 +32,78 @@
 						<nav aria-label="breadcrumb">
 							<ol class="breadcrumb">
 								<li class="breadcrumb-item"><a href="{{route('admin.dashboard')}}"><i class="fas fa-home"></i></a></li>
-								<li class="breadcrumb-item remove_hover">Wallet Management</li>
+								<li class="breadcrumb-item remove_hover">Users Wallet Details</li>
 								<!-- <li class="breadcrumb-item active" aria-current="page">Data</li> -->
 							</ol>
 						</nav>
 						@include('admin.layout.notification')
 					</div>
-					<h1>Wallet Management</h1>
+
+                    <h1>User Wallet Details</h1>
+
+                    <div class="card">
+                        <div class="card-body add_imgae_box">
+                            
+                            <div class="table-responsive simple_table">
+                                <table class="display table table-striped table-hover dataTable" >
+                                    <!-- <thead>
+                                        <tr>
+                                            <th>Sr. No.</th>
+                                            <th class="text-left">Profile Image</th>
+                                            <th>Name</th>
+                                            <th>Email Address</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead> -->
+                                    <tbody>
+                                        <tr>
+                                            <th>User Name</th>
+                                            <td>
+                                                {{$userDetails->user_name_with_id}}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Tree Amount</th>
+                                            <td>
+                                                {{$userDetails->tree_amount}}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Direct Amount</th>
+                                            <td>
+                                                {{$userDetails->direct_amount}}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Total Amount Credit</th>
+                                            <td>
+                                                {{$userDetails->total_amount_credit}}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Balance Amount</th>
+                                            <td>
+                                                {{$userDetails->show_balance_amount}}
+                                            </td>
+                                        </tr>
+
+
+                                        
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+					<h1>Wallet listing</h1>
 					<div class="card">
 						<div class="card-body">
 							
@@ -58,7 +123,7 @@
                                     <th>Credit Amount</th>
 									<th>Created At</th>
 
-									<th>Action</th>
+									<!-- <th>Action</th> -->
 
 									</tr>
 								</thead>
@@ -237,7 +302,7 @@
             "processing": true,
             "serverSide": true,
             "ajax": {
-                "url": "{{ route('admin.walletManagement') }}",
+                "url": "{{ route('admin.usersViewWalletDetails', $encodeID) }}",
                 "type": "POST",
                 "data" : dataGET,
               complete:function(){
@@ -267,7 +332,7 @@
               //{data: 'total_amount_in_rupees', name: 'total_amount_in_rupees'},
 			  {data: 'credit_user_amount_in_rupees', name: 'credit_user_amount_in_rupees'},
               {data: 'date_show', name: 'date_show'},
-              {data: 'action', name: 'action', orderable: false, searchable: false},
+              //{data: 'action', name: 'action', orderable: false, searchable: false},
             ],
  
         });

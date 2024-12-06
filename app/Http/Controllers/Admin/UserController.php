@@ -304,7 +304,7 @@ class UserController extends ResponseController
                 return redirect()->back();
             }
 
-            $findSponserId = auth()->guard('admin')->user();
+            $findSponserId = User::whereCustomUserId($data['sponser_id'])->first();
             $findUplineId = User::whereCustomUserId($data['upline_id'])->first();
 
             $countNumberOfTimesUnderUplineID = UnderTakeUser::whereDeletedAt(null)->whereUplineId($findUplineId->id)->count();
@@ -414,57 +414,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-
-                        // If the user's ID is found in the array
-                        if ($userIndex !== false) {
-                            // Count the number of IDs after the user's ID
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-
-                            // Compare the length of afterUserIds with the length of all IDs after the logged-in user in other records
-                            // This part assumes we need to keep only the record with the longest number of IDs after the user
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $collection = collect($filteredRecords);
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
-
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -477,49 +456,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -532,49 +498,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -587,49 +540,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -642,49 +582,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -697,49 +624,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -752,49 +666,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -807,49 +708,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -862,49 +750,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -917,49 +792,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -972,49 +834,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -1027,49 +876,36 @@ class UserController extends ResponseController
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
-                    ->limit(3)
                     ->get();
-
-                    $filteredRecords = $records->filter(function ($record) use ($user, $records) {
-                        $ids = explode(',', $record->sequece_wise_user_added_record_ids);
-                        $userIndex = array_search((string)$user->id, $ids);
-                        if ($userIndex !== false) {
-                            $afterUserIds = array_slice($ids, $userIndex + 1);
-                            $afterUserLength = count($afterUserIds);
-                            $isLongest = true;
-                            foreach ($records as $otherRecord) {
-                                if ($otherRecord->id !== $record->id) {
-                                    $otherIds = explode(',', $otherRecord->sequece_wise_user_added_record_ids);
-                                    $otherUserIndex = array_search((string)$user->id, $otherIds);
-                                    if ($otherUserIndex !== false) {
-                                        $otherAfterUserIds = array_slice($otherIds, $otherUserIndex + 1);
-                                        if (count($otherAfterUserIds) > $afterUserLength) {
-                                            $isLongest = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Only include the record if it is the longest
-                            return $isLongest;
-                        }
-
-                        // If the user ID is not found, include the record
-                        return true;
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        // Check if the logged-in ID appears after the first two IDs
+                        return array_search($user->id, array_slice($ids, 0, 2)) !== false;
+                    })->groupBy(function ($item) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        return implode(',', array_slice($ids, 0, 2)); // Group by first two IDs
                     });
 
-                    // Re-index the collection
-                    $filteredRecords = $filteredRecords->values()->all();
+                    $result = $groupedRecords->map(function ($group) {
+                        return $group->sortByDesc(function ($item) {
+                            return strlen($item['sequece_wise_user_added_record_ids']);
+                        })->first();
+                    })->take(3)->values();
 
-                    $total = $collection->sum(function ($item) {
-                        return count(explode(',', $item['sequece_wise_user_added_record_ids']));
-                    });
+                    $uniqueIds = $result->flatMap(function ($item) {
+                        return explode(',', $item['sequece_wise_user_added_record_ids']);
+                    })->unique()->toArray();
 
-                    $total = $total - 3; //3 will be use for check left-right-middle line only
+                    
+                    $finalUniqueIds = array_values(array_filter($uniqueIds, function ($value) use ($user) {
+                        return $value !== (string)$user->id;
+                    }));
+                    
+                    // Get total count of unique IDs
+                    $totalCount = count($finalUniqueIds);
 
-
-                    if($total >= $levelRecord['number_of_users']) {
+                    if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
@@ -1120,7 +956,8 @@ class UserController extends ResponseController
                 //}
             }
 
-            
+            $addBalance = $user->balance_amount + $calculateAmount;
+            User::whereId($user->id)->update(['balance_amount' => $addBalance]);
             $k--;
             
         }
@@ -1443,6 +1280,228 @@ class UserController extends ResponseController
         $walletDetails = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'))->whereId($walletID)->first();
 
         return view('admin.view-wallet', compact('walletDetails'));
+    }
+
+    public function usersWalletManagement(Request $request) {
+        if($request->isMethod('GET')) {
+            $admin = auth()->guard('admin')->user();
+            return view('admin.users-wallet-management', compact('admin'));
+        }
+
+        if($request->isMethod('POST')) {
+            $admin = auth()->guard('admin')->user();
+            $column = "id";
+            $asc_desc = $request->get("order")[0]['dir'];
+
+            if($asc_desc == "asc"){
+                $asc_desc = "desc";
+            }else{
+                $asc_desc = "asc";
+            }
+
+            $order = $request->get("order")[0]['column'];
+            if($order == 0){
+                $column = "id";
+            }elseif($order == 1){
+                $column = "user_name_with_id";
+            }elseif($order == 2){
+                $column = "tree_amount";
+            }elseif($order == 3){
+                $column = "direct_amount";
+            }elseif($order == 4){
+                $column = "total_amount_credit";
+            }else if($order == 5) {
+                $column = "show_balance_amount";
+            }else if($order == 5) {
+                $column = "updated_date_show";
+            }
+            
+
+            //all user in superadmin case to show
+            
+
+            
+            $data = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'))->whereDeletedAt(null)->orderBy($column,$asc_desc);
+            
+
+
+            $total = $data->get()->count();
+
+            if(!empty($request->get("search")["value"])){
+                $search = $request->get("search")["value"];
+            }else{
+
+                $search = $request->search_txt;
+            }
+            $filter = $total;
+
+
+            if($search){
+                $data  = $data->where(function($query) use($search){
+                            $query->orWhere(DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.balance_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                        });
+
+                $filter = $data->get()->count();
+
+            }
+
+            $data = $data->offset($request->start);
+            $data = $data->take($request->length);
+            $data = $data->get();
+
+
+            $start_from = $request->start;
+            if($start_from == 0){
+                $start_from  = 1;
+            }
+            if($start_from % 10 == 0){
+                $start_from = $start_from + 1;
+            }
+
+
+            foreach ($data as $k => $row) {
+
+                $btn ="";
+
+                
+                
+                $btn .= '<a href="users-wallet-view/'.base64_encode($row->id).'"><button type="button" class="btn btn-warning same_wd_btn mr-2">View</button></a>';                
+
+                $row->action = $btn;
+
+                $row->DT_RowIndex = $start_from++;
+
+
+
+            }
+
+
+            $return_data = [
+                    "data" => $data,
+                    "draw" => (int)$request->draw,
+                    "recordsTotal" => $total,
+                    "recordsFiltered" => $filter,
+                    "input" => $request->all()
+            ];
+            return response()->json($return_data);
+        }
+    }
+
+    public function usersViewWalletDetails(Request $request, $user_id) {
+        if($request->isMethod('GET')) {
+            $userID = base64_decode($user_id);
+            $admin = auth()->guard('admin')->user();
+            $encodeID = $user_id;
+            $userDetails = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'))->whereId($userID)->first();
+            return view('admin.view-user-wallet-details', compact('admin', 'userID', 'encodeID', 'userDetails'));
+        }
+
+        if($request->isMethod('POST')) {
+            $admin = auth()->guard('admin')->user();
+            $userID = base64_decode($user_id);
+            $column = "id";
+            $asc_desc = $request->get("order")[0]['dir'];
+
+            if($asc_desc == "asc"){
+                $asc_desc = "desc";
+            }else{
+                $asc_desc = "asc";
+            }
+
+            $order = $request->get("order")[0]['column'];
+            if($order == 0){
+                $column = "id";
+            }elseif($order == 1){
+                $column = "upline_user_id_with_name";
+            }elseif($order == 2){
+                $column = "under_user_id_with_name";
+            }elseif($order == 3){
+                $column = "percentag_or_flat_amount";
+            }elseif($order == 4){
+                $column = "credit_user_amount_in_rupees";
+            }else if($order == 5) {
+                $column = "date_show";
+            }
+            
+
+            //all user in superadmin case to show
+            
+
+           
+            $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'))->whereDeletedAt(null)->where('credit_user_id', '=', $userID)->orderBy($column,$asc_desc);
+            
+
+
+            $total = $data->get()->count();
+
+            if(!empty($request->get("search")["value"])){
+                $search = $request->get("search")["value"];
+            }else{
+
+                $search = $request->search_txt;
+            }
+            $filter = $total;
+
+
+            if($search){
+                $data  = $data->where(function($query) use($search){
+                            $query->orWhere(DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")")'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")")'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                        });
+
+                $filter = $data->get()->count();
+
+            }
+
+            $data = $data->offset($request->start);
+            $data = $data->take($request->length);
+            $data = $data->get();
+
+
+            $start_from = $request->start;
+            if($start_from == 0){
+                $start_from  = 1;
+            }
+            if($start_from % 10 == 0){
+                $start_from = $start_from + 1;
+            }
+
+
+            foreach ($data as $k => $row) {
+
+                $btn ="";
+
+                
+                
+               // $btn .= '<a href="wallet-view/'.base64_encode($row->id).'"><button type="button" class="btn btn-warning same_wd_btn mr-2">View</button></a>';                
+
+                $row->action = $btn;
+
+                $row->DT_RowIndex = $start_from++;
+
+
+
+            }
+
+
+            $return_data = [
+                    "data" => $data,
+                    "draw" => (int)$request->draw,
+                    "recordsTotal" => $total,
+                    "recordsFiltered" => $filter,
+                    "input" => $request->all()
+            ];
+            return response()->json($return_data);
+        }
+        
     }
 
 }

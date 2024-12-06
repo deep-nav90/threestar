@@ -19,7 +19,7 @@
 
 					<div class="my-tree">
 								<a href="{{route('admin.treeView',base64_encode($userDetails->id))}}">
-									<button type="button" class="btn btn-warning same_wd_btn">My Tree</button>
+									<button type="button" class="btn btn-warning same_wd_btn">View Tree</button>
 								</a>
 							</div>
 

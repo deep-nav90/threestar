@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Dec 02, 2024 at 06:39 PM
+-- Generation Time: Dec 06, 2024 at 10:48 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -146,16 +146,6 @@ CREATE TABLE `under_take_users` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `under_take_users`
---
-
-INSERT INTO `under_take_users` (`id`, `sponser_id`, `upline_id`, `user_id`, `sequece_wise_user_added_record_ids`, `amount`, `deleted_at`, `created_at`, `updated_at`) VALUES
-(56, 1, 1, 60, '1', 200000, NULL, '2024-12-02 11:56:44', '2024-12-02 11:56:44'),
-(57, 1, 1, 61, '1', 200000, NULL, '2024-12-02 11:57:03', '2024-12-02 11:57:03'),
-(58, 1, 1, 62, '1', 200000, NULL, '2024-12-02 11:57:21', '2024-12-02 11:57:21'),
-(59, 60, 60, 63, '1,60', 200000, NULL, '2024-12-02 11:58:38', '2024-12-02 11:58:38');
-
 -- --------------------------------------------------------
 
 --
@@ -193,6 +183,8 @@ CREATE TABLE `users` (
   `remember_token` varchar(100) DEFAULT NULL,
   `is_super_admin` int(1) NOT NULL DEFAULT 0 COMMENT '1=> Super Admin, 0=> Not Super Admin',
   `user_level` int(11) NOT NULL DEFAULT 0,
+  `balance_amount` bigint(11) NOT NULL DEFAULT 0,
+  `winnig_reward` bigint(20) NOT NULL DEFAULT 0,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
@@ -202,12 +194,8 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `custom_user_id`, `name`, `dob`, `s_w_d`, `swd_name`, `nomination_name`, `nomination_dob`, `country_code`, `mobile_number`, `email`, `adhar_number`, `pan_number`, `bank_account_number`, `bank_name`, `bank_ifsc_code`, `bank_branch_name`, `address`, `country`, `city`, `state`, `zip_code`, `password`, `device_type`, `device_token`, `refresh_token`, `is_block`, `remember_token`, `is_super_admin`, `user_level`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'TS000', 'Super Admin', '1994-11-11', 'Son Off', NULL, 'SUPER ADMIN', NULL, '+91', '9876543210', 'superadmin@yopmail.com', '000000000000', '000000000', '00000000000', 'NONE', 'NONE', 'NONE', 'NONE', '', NULL, NULL, NULL, '$2y$12$qMgzlHJwqRpUjNzUBld//eDpCMDwfdMY4ZVzfVldq2iK5K/DulbA2', NULL, NULL, NULL, 0, 'oJnrw9omtdM8rL9Z86n4Q4cxtEZosqLz', 1, 1, '2024-11-11 21:00:12', '2024-12-02 11:57:21', NULL),
-(60, 'TS001', 'Aman', '2012-11-27', 'Son Off', 'ABC', NULL, NULL, '+91', '6467023890', 'hosttesting@yopmail.com', '3543543', NULL, NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', 'ts000', '$2y$12$6o8wG3gDLJQehd3pu4CvLuc9jPtIPHqgTd.r1m.dh0iw8LMfBVjxG', NULL, NULL, NULL, 0, 'cbMPi6uKZ0noQtDXI8XyudyFC9ukTZLz', 0, 0, '2024-12-02 11:56:44', '2024-12-02 11:58:07', NULL),
-(61, 'TS002', 'Deep', '2012-11-26', 'Son Off', 'ABC', 'ABC', NULL, '+91', '6467023891', 'hosttesting@yopmail.com', '3543543', NULL, NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', 'ts000', '$2y$12$lm4Os4GYg9k59anB3NkF5OqJX8tWVYeC/L/oadCD8oPK8KK5.d9/e', NULL, NULL, NULL, 0, NULL, 0, 0, '2024-12-02 11:57:03', '2024-12-02 11:57:03', NULL),
-(62, 'TS003', 'Verma', '2012-11-26', 'Son Off', 'ABC', NULL, NULL, '+91', '6467023893', 'hosttesting@yopmail.com', '3543543', NULL, NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', 'ts000', '$2y$12$Zwu6fYPgswqLamx9M0UOw.q9EZfRO4bcopJGoSMHBRM61vzOfBVPO', NULL, NULL, NULL, 0, NULL, 0, 0, '2024-12-02 11:57:21', '2024-12-02 11:57:21', NULL),
-(63, 'TS004', 'Shilpa', '2012-11-26', 'Son Off', 'ABC', 'ABC', NULL, '+91', '6467023894', 'hosttesting@yopmail.com', '3543543', NULL, NULL, NULL, NULL, NULL, 'California Road', 'United States', 'Stockholm', 'Maine', '04783', '$2y$12$.Jda5E.LkEOdKlqC9gytUuIIN1ZBVn0VlrFTqiYjEk2utzx8xjlrO', NULL, NULL, NULL, 0, NULL, 0, 0, '2024-12-02 11:58:38', '2024-12-02 11:58:38', NULL);
+INSERT INTO `users` (`id`, `custom_user_id`, `name`, `dob`, `s_w_d`, `swd_name`, `nomination_name`, `nomination_dob`, `country_code`, `mobile_number`, `email`, `adhar_number`, `pan_number`, `bank_account_number`, `bank_name`, `bank_ifsc_code`, `bank_branch_name`, `address`, `country`, `city`, `state`, `zip_code`, `password`, `device_type`, `device_token`, `refresh_token`, `is_block`, `remember_token`, `is_super_admin`, `user_level`, `balance_amount`, `winnig_reward`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'TS000', 'Super Admin', '1994-11-11', 'Son Off', NULL, 'SUPER ADMIN', NULL, '+91', '9876543210', 'superadmin@yopmail.com', '000000000000', '000000000', '00000000000', 'NONE', 'NONE', 'NONE', 'NONE', '', NULL, NULL, NULL, '$2y$12$qMgzlHJwqRpUjNzUBld//eDpCMDwfdMY4ZVzfVldq2iK5K/DulbA2', NULL, NULL, NULL, 0, 'hfIjQ2iMzMrWv27FSM46ElOc2A76Xrl3', 1, 0, 0, 0, '2024-11-11 21:00:12', '2024-12-06 04:16:51', NULL);
 
 -- --------------------------------------------------------
 
@@ -228,21 +216,6 @@ CREATE TABLE `wallets` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `wallets`
---
-
-INSERT INTO `wallets` (`id`, `credit_user_id`, `upline_id`, `user_id`, `percentage`, `total_amount`, `credit_user_amount`, `type_of_credit`, `deleted_at`, `created_at`, `updated_at`) VALUES
-(39, 1, 1, 60, 0, 200000, 20000, 'By Sponser', NULL, '2024-12-02 11:56:44', '2024-12-02 11:56:44'),
-(40, 1, 1, 60, 7.5, 200000, 15000, 'By Tree', NULL, '2024-12-02 11:56:44', '2024-12-02 11:56:44'),
-(41, 1, 1, 61, 0, 200000, 20000, 'By Sponser', NULL, '2024-12-02 11:57:03', '2024-12-02 11:57:03'),
-(42, 1, 1, 61, 7.5, 200000, 15000, 'By Tree', NULL, '2024-12-02 11:57:03', '2024-12-02 11:57:03'),
-(43, 1, 1, 62, 0, 200000, 20000, 'By Sponser', NULL, '2024-12-02 11:57:21', '2024-12-02 11:57:21'),
-(44, 1, 1, 62, 7.5, 200000, 15000, 'By Tree', NULL, '2024-12-02 11:57:21', '2024-12-02 11:57:21'),
-(45, 60, 60, 63, 0, 200000, 20000, 'By Sponser', NULL, '2024-12-02 11:58:38', '2024-12-02 11:58:38'),
-(46, 1, 60, 63, 5, 200000, 10000, 'By Tree', NULL, '2024-12-02 11:58:38', '2024-12-02 11:58:38'),
-(47, 60, 60, 63, 7.5, 200000, 15000, 'By Tree', NULL, '2024-12-02 11:58:38', '2024-12-02 11:58:38');
 
 --
 -- Indexes for dumped tables
@@ -337,19 +310,19 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `under_take_users`
 --
 ALTER TABLE `under_take_users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 
 --
 -- AUTO_INCREMENT for table `wallets`
 --
 ALTER TABLE `wallets`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables

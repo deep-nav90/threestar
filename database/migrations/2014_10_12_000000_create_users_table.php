@@ -41,6 +41,8 @@ return new class extends Migration
             $table->text('refresh_token')->nullable();
             $table->integer('is_block')->default(0)->comment("0 => Not blocked, 1=> blocked");
             $table->integer('is_super_admin')->default(0)->comment("0=> Not Super Admin, 1=> SuperAdmin");
+            $table->bigInteger('balance_amount')->default(0);
+            $table->bigInteger('winnig_reward')->default(0);
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
