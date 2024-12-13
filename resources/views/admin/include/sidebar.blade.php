@@ -113,7 +113,7 @@
 
 						<li class= "nav-item <?php if(Request::is("admin/wallet-management") || Request::is("admin/wallet-view/*")) {echo 'nav-item active';} else {echo '';}?>">
 							<a href="{{route('admin.walletManagement')}}">
-								<i class="fas fa-user"></i>
+								<i class="fas fa-wallet"></i>
 								<p>My Wallet Management</p>
 								<!-- <span class="caret"></span> -->
 							</a>
@@ -123,7 +123,7 @@
 						@if(Auth()->guard('admin')->user()->is_super_admin == 1)
 						<li class= "nav-item <?php if(Request::is("admin/users-wallet-management") || Request::is("admin/users-wallet-view/*")) {echo 'nav-item active';} else {echo '';}?>">
 							<a href="{{route('admin.usersWalletManagement')}}">
-								<i class="fas fa-user"></i>
+								<i class="fab fa-google-wallet"></i>
 								<p>Users Wallet Management</p>
 								<!-- <span class="caret"></span> -->
 							</a>

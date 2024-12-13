@@ -48,6 +48,13 @@ div#lodaerModal {
     text-align: center;
     top: 50%;
 }
+
+label.error {
+    color: #ff0000 !important;
+    font-size: 100% !important;
+    margin-top: 0px;
+}
+
 	</style>
 
 		<div class="main-panel dashboard_panel">

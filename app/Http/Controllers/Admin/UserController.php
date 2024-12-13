@@ -393,6 +393,11 @@ class UserController extends ResponseController
         $saveWallet2->credit_user_amount = $staticSponserAmount;
         $saveWallet2->type_of_credit = "By Sponser";
         $saveWallet2->save();
+
+        //UPDATE WALLET AMOUNT SPONSER
+        $sponserUser = User::find($sponser_id);
+        $addBalanceSponser = $sponserUser->balance_amount + $staticSponserAmount;
+        User::whereId($sponserUser->id)->update(['balance_amount' => $addBalanceSponser]);
         //END OF SPONSER USER WALLET
         
 
@@ -977,9 +982,9 @@ class UserController extends ResponseController
             }
 
             $addBalAmtCalculate = $calculateAmount;
-            if($sponser_id == $user->id){
-                $addBalAmtCalculate = $staticSponserAmount + $addBalAmtCalculate;
-            }
+            // if($sponser_id == $user->id){
+            //     $addBalAmtCalculate = $staticSponserAmount + $addBalAmtCalculate;
+            // }
 
             $addBalance = $user->balance_amount + $addBalAmtCalculate;
             User::whereId($user->id)->update(['balance_amount' => $addBalance]);
@@ -1574,11 +1579,13 @@ class UserController extends ResponseController
       //  return $customUserID;
         $findUser = User::whereCustomUserId($customUserID)->first();
 
-        $underTakeUsersIds = UnderTakeUser::whereDeletedAt(null)->whereUplineId($findUser->id)->pluck('user_id');
+        $underTakeUsersIds = UnderTakeUser::whereDeletedAt(null)->whereSponserId($findUser->id)->pluck('user_id');
+        $underTakeUsersIds2 = UnderTakeUser::whereDeletedAt(null)->whereUplineId($findUser->id)->pluck('user_id');
+        $mergeIds = collect($underTakeUsersIds)->merge($underTakeUsersIds2);
 
         $allUserIds = User::select('*', DB::raw('CONCAT(custom_user_id, " (", name, ")") AS show_custom_user_id'))->whereDeletedAt(null)->whereIsBlock(0)
-                        ->where(function($query) use($underTakeUsersIds) {
-                            $query->whereIn('id', $underTakeUsersIds);
+                        ->where(function($query) use($mergeIds) {
+                            $query->whereIn('id', $mergeIds);
 
                         })->orWhere(function($query) use ($findUser) {
                             $query->whereId($findUser->id);

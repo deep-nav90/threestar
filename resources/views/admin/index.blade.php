@@ -68,7 +68,7 @@
 								<div class="box">
 									<span class="total_count">{{$myWalletTreeAmountFormat}}</span>
 									<div class="icon_text">
-										<i class="fas fa-user"></i>
+										<i class="fas fa-tree"></i>
 										<h2>
 											My Wallet Tree Amount
 										</h2>
@@ -82,7 +82,7 @@
 								<div class="box">
 									<span class="total_count">{{$myWalletDirectAmountFormat}}</span>
 									<div class="icon_text">
-										<i class="fas fa-user"></i>
+									<i class="fas fa-money-bill-wave"></i>
 										<h2>
 											My Wallet Direct Amount
 										</h2>
@@ -99,7 +99,7 @@
 								<div class="box">
 									<span class="total_count">{{$myWalletDebitFormat}}</span>
 									<div class="icon_text">
-										<i class="fas fa-user"></i>
+									<i class="fas fa-money-bill"></i>
 										<h2>
 											My Wallet Debit Amount
 										</h2>
@@ -113,7 +113,7 @@
 								<div class="box">
 									<span class="total_count">{{$balanceAmount}}</span>
 									<div class="icon_text">
-										<i class="fas fa-user"></i>
+										<i class="fas fa-money-check-alt"></i>
 										<h2>
 											My Balance Amount
 										</h2>
@@ -130,7 +130,7 @@
 								<div class="box">
 									<span class="total_count">{{$adminWalletAmount}}</span>
 									<div class="icon_text">
-										<i class="fas fa-wallet"></i>
+									<i class="fab fa-cc-diners-club"></i>
 										<h2>
 											Total Credit Amount
 										</h2>
@@ -145,7 +145,7 @@
 								<div class="box">
 									<span class="total_count">{{$totalCreditAmtFormat}}</span>
 									<div class="icon_text">
-										<i class="fas fa-wallet"></i>
+										<i class="fab fa-google-wallet"></i>
 										<h2>
 											Users Wallet Credit
 										</h2>

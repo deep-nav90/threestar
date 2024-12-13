@@ -155,11 +155,11 @@ div#lodaerModal {
 											<span class="artisan-star">*</span>
 
 											<?php 
-												$carbon_max_calander_date = Carbon\Carbon::now()->subYear(12)->format('Y-m-d');
+												$carbon_max_calander_date = Carbon\Carbon::now()->subYear(18)->format('Y-m-d');
 											?>
 
 											<div class="form-group pb-3" style="position: relative;">
-												<input type="date" class="form-control" name="dob" min="1920-01-01" max="{{$carbon_max_calander_date}}" placeholder="Enter Date of Birth" onkeydown="return false"/>
+												<input type="date" class="form-control" value="{{$carbon_max_calander_date}}" name="dob" min="1920-01-01" max="{{$carbon_max_calander_date}}" placeholder="Enter Date of Birth" onkeydown="return false"/>
 
 												<!-- <input type="date" class="form-control" name="dob" placeholder="Enter Date of Birth"/> -->
 
