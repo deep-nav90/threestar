@@ -56,6 +56,7 @@
 									<th>Percentage/Flat</th>
 									<!-- <th>Total Amount</th> -->
                                     <th>Credit Amount</th>
+									<th>Debit Amount</th>
 									<th>Created At</th>
 
 									<th>Action</th>
@@ -257,7 +258,8 @@
               $( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','percentag_or_flat_amount').addClass('td_click');
               //$( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_in_rupees').addClass('td_click');
               $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','credit_user_amount_in_rupees').addClass('td_click');
-			  $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
+			  $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','debit_amount_show').addClass('td_click');
+			  $( row ).find('td:eq(6)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
 			},
             "columns": [
               {data: 'DT_RowIndex', name: 'DT_RowIndex'},
@@ -266,6 +268,7 @@
               {data: 'percentag_or_flat_amount', name: 'percentag_or_flat_amount'},
               //{data: 'total_amount_in_rupees', name: 'total_amount_in_rupees'},
 			  {data: 'credit_user_amount_in_rupees', name: 'credit_user_amount_in_rupees'},
+			  {data: 'debit_amount_show', name: 'debit_amount_show'},
               {data: 'date_show', name: 'date_show'},
               {data: 'action', name: 'action', orderable: false, searchable: false},
             ],

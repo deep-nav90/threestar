@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Dec 06, 2024 at 10:48 AM
+-- Generation Time: Dec 13, 2024 at 04:40 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -195,7 +195,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `custom_user_id`, `name`, `dob`, `s_w_d`, `swd_name`, `nomination_name`, `nomination_dob`, `country_code`, `mobile_number`, `email`, `adhar_number`, `pan_number`, `bank_account_number`, `bank_name`, `bank_ifsc_code`, `bank_branch_name`, `address`, `country`, `city`, `state`, `zip_code`, `password`, `device_type`, `device_token`, `refresh_token`, `is_block`, `remember_token`, `is_super_admin`, `user_level`, `balance_amount`, `winnig_reward`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'TS000', 'Super Admin', '1994-11-11', 'Son Off', NULL, 'SUPER ADMIN', NULL, '+91', '9876543210', 'superadmin@yopmail.com', '000000000000', '000000000', '00000000000', 'NONE', 'NONE', 'NONE', 'NONE', '', NULL, NULL, NULL, '$2y$12$qMgzlHJwqRpUjNzUBld//eDpCMDwfdMY4ZVzfVldq2iK5K/DulbA2', NULL, NULL, NULL, 0, 'hfIjQ2iMzMrWv27FSM46ElOc2A76Xrl3', 1, 0, 0, 0, '2024-11-11 21:00:12', '2024-12-06 04:16:51', NULL);
+(1, 'TS000', 'Super Admin', '1994-11-11', 'Son Off', NULL, 'SUPER ADMIN', NULL, '+91', '9876543210', 'superadmin@yopmail.com', '000000000000', '000000000', '00000000000', 'NONE', 'NONE', 'NONE', 'NONE', '', NULL, NULL, NULL, '$2y$12$qMgzlHJwqRpUjNzUBld//eDpCMDwfdMY4ZVzfVldq2iK5K/DulbA2', NULL, NULL, NULL, 0, 'ZQAKzERGU9WoiBAl0wNnwsbO2RrKZvYJ', 1, 0, 0, 0, '2024-11-11 21:00:12', '2024-12-12 22:06:11', NULL);
 
 -- --------------------------------------------------------
 
@@ -206,12 +206,13 @@ INSERT INTO `users` (`id`, `custom_user_id`, `name`, `dob`, `s_w_d`, `swd_name`,
 CREATE TABLE `wallets` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `credit_user_id` bigint(20) UNSIGNED NOT NULL,
-  `upline_id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `upline_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `user_id` bigint(20) UNSIGNED DEFAULT NULL,
   `percentage` double NOT NULL DEFAULT 0,
   `total_amount` bigint(20) NOT NULL,
   `credit_user_amount` bigint(20) NOT NULL,
-  `type_of_credit` enum('By Tree','By Sponser') NOT NULL,
+  `type_of_credit` enum('By Tree','By Sponser','By Debit') NOT NULL,
+  `debit_amount` bigint(20) NOT NULL DEFAULT 0,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -316,7 +317,7 @@ ALTER TABLE `under_take_users`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
 
 --
 -- AUTO_INCREMENT for table `wallets`

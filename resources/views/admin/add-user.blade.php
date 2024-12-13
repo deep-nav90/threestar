@@ -51,6 +51,12 @@ label#swd_name-error {
     margin-left: 24%;
 }
 
+div#lodaerModal {
+    text-align: center;
+    top: 50%;
+}
+
+
 </style>
 
 		<div class="main-panel dashboard_panel">
@@ -85,7 +91,7 @@ label#swd_name-error {
 											<div class="form-group pb-3">
 												<!-- <input type="text" class="form-control" placeholder="Enter Sponser ID" name="sponser_id" /> -->
 
-												<select class="form-control form-group" style="padding: .6rem 1rem; position: relative;" name="sponser_id" placeholder="Select Sponser ID">
+												<select id="sponser_id" class="form-control form-group" style="padding: .6rem 1rem; position: relative;" name="sponser_id" placeholder="Select Sponser ID">
 												<option value="">Select Sponser ID</option>
 													
 												@foreach($allUserIds as $customUserID)
@@ -108,16 +114,16 @@ label#swd_name-error {
 											<label for="upline_id" class="pb-1">Upline ID</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-											<select class="form-control form-group" style="padding: .6rem 1rem; position: relative;" name="upline_id" placeholder="Select Upline ID">
+											<select id="upline_id" class="form-control form-group" style="padding: .6rem 1rem; position: relative;" name="upline_id" placeholder="Select Upline ID">
 												<option value="">Select Upline ID</option>
-													@foreach($allUserIds as $customUserID)
+													<!-- @foreach($allUserIds as $customUserID)
 													@if(in_array($customUserID, $disabledUserIds))
 													<option disabled value="{{$customUserID}}">{{$customUserID}}</option>
 													@else
 													<option value="{{$customUserID}}">{{$customUserID}}</option>
 													@endif()
 													
-													@endforeach()
+													@endforeach() -->
 												</select>
 												@if($errors->first('upline_id'))
 													<span class="text-danger error">{{$errors->first('upline_id')}}</span>
@@ -454,6 +460,14 @@ label#swd_name-error {
 		
 @endsection()
 
+<div class="modal fade" id="lodaerModal" tabindex="-1" role="dialog" aria-labelledby="lodaerModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+     
+      <img src="{{url('public/loading-buffering.gif')}}" style="width: 50px; height:50px;">
+     
+  </div>
+</div>
+
 
 @section('js')
 
@@ -745,7 +759,58 @@ label#swd_name-error {
             }
         });
 
-        });
+
+		$("#sponser_id").on("change", function() {
+			$("#lodaerModal").modal("show");
+			let sponserIDWithName = $(this).val();
+			if(sponserIDWithName) {
+				let sponserID = sponserIDWithName.split(" ");
+				sponserID = sponserID[0];
+				let getUserURL = "{{url('admin/get-users-by-sponser')}}" + "/" + sponserID;
+
+				var dataPayload = {
+	              '_token': "{{csrf_token()}}",
+	              'custom_user_id': sponserID,
+              	};
+
+				//alert(getUserURL)
+				$.ajax({
+					url: getUserURL,
+					type:'POST',
+					data:dataPayload,
+					success: function(res){
+						let options = `<option value="">Select Upline ID</option>`;
+						for(let k=0; k < res.length; k++) {
+							options += `<option value="`+res[k]+`">`+res[k]+`</option>`
+						}
+
+						$("#upline_id").html(options);
+						$("#upline_id").val("");
+						console.log("sssss", res)
+						setTimeout(() => {
+							$("#lodaerModal").modal("hide");
+						}, 500);
+						
+					},
+					error: function(data, textStatus, xhr) {
+					if(data.status == 422){
+						setTimeout(() => {
+							$("#lodaerModal").modal("hide");
+						}, 500);
+						var result = data.responseJSON;
+						alert('Something went worng.');
+						window.location.href = "";
+						return false;
+					} 
+					}
+				});
+			}else{
+				$("#upline_id").val("");
+			}
+			
+		})
+
+	});
  </script>
 
 @endsection()

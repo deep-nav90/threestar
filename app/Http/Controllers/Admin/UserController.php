@@ -58,14 +58,20 @@ class UserController extends ResponseController
     }
 
     public function dashboard(Request $request) {
-        if(!auth()->guard('admin')->user()) {
+        $admin = auth()->guard('admin')->user();
+        if(!$admin) {
             return redirect(route('admin.login'));
         }
 
-        $underTakeUsersIds = UnderTakeUser::whereDeletedAt(null)->whereSponserId(auth()->guard('admin')->user()->id)->pluck('user_id');
-        $underTakeUsersIds2 = UnderTakeUser::whereDeletedAt(null)->whereUplineId(auth()->guard('admin')->user()->id)->pluck('user_id');
+        $underTakeUsersIds = UnderTakeUser::whereDeletedAt(null)->whereSponserId($admin->id)->pluck('user_id');
+        $underTakeUsersIds2 = UnderTakeUser::whereDeletedAt(null)->whereUplineId($admin->id)->pluck('user_id');
         $mergeIds = collect($underTakeUsersIds)->merge($underTakeUsersIds2);
-        $totalUsers = User::whereDeletedAt(null)->whereIn('id', $mergeIds)->count();
+
+        $totalUsers = User::whereDeletedAt(null)->whereIn('id', $mergeIds)->where('id', '!=', $admin->id)->count();
+
+        if($admin->is_super_admin == 1) {
+            $totalUsers = User::whereDeletedAt(null)->where('id', '!=', $admin->id)->count();
+        }
         $totalAmountInt = UnderTakeUser::sum('amount');
         $totalAmount = $this->formatToIndianRupees($totalAmountInt);
         $totalCreditUserAmount = Wallet::sum('credit_user_amount');
@@ -73,9 +79,23 @@ class UserController extends ResponseController
         $adminWalletAmount = $this->formatToIndianRupees($adminWalletAmountInt);
         $totalCreditAmtFormat = $this->formatToIndianRupees($totalCreditUserAmount);
 
-        $myWalletCreditInt = Wallet::whereCreditUserId(auth()->guard('admin')->user()->id)->sum('credit_user_amount');
+        $myWalletCreditInt = Wallet::whereCreditUserId($admin->id)->sum('credit_user_amount');
         $myWalletCreditFormat = $this->formatToIndianRupees($myWalletCreditInt);
-        return view('admin.index', compact('totalUsers', 'totalAmount', 'adminWalletAmount', 'totalCreditAmtFormat', 'myWalletCreditFormat'));
+
+        $balanceAmount = $this->formatToIndianRupees($admin->balance_amount);
+
+
+        $myWalletDebitInt = Wallet::whereCreditUserId($admin->id)->sum('debit_amount');
+        $myWalletDebitFormat = $this->formatToIndianRupees($myWalletDebitInt);
+
+        $myWalletTreeAmountInt = Wallet::whereCreditUserId($admin->id)->whereTypeOfCredit('By Tree')->sum('credit_user_amount');
+        $myWalletTreeAmountFormat = $this->formatToIndianRupees($myWalletTreeAmountInt);
+
+
+        $myWalletDirectAmountInt = Wallet::whereCreditUserId($admin->id)->whereTypeOfCredit('By Sponser')->sum('credit_user_amount');
+        $myWalletDirectAmountFormat = $this->formatToIndianRupees($myWalletDirectAmountInt);
+
+        return view('admin.index', compact('totalUsers', 'totalAmount', 'adminWalletAmount', 'totalCreditAmtFormat', 'myWalletCreditFormat', 'balanceAmount', 'myWalletDebitFormat', 'myWalletTreeAmountFormat', 'myWalletDirectAmountFormat'));
     }
 
     function formatToIndianRupees($amountInPaisa) {
@@ -362,7 +382,7 @@ class UserController extends ResponseController
 
     function calculateLevelAndAmount($sequence_ids, $sponser_id, $upline_id, $amount, $saveRecord) {
 
-
+        $staticSponserAmount = 20000;
         //for sponser fee
         $saveWallet2 = new Wallet();
         $saveWallet2->credit_user_id = $sponser_id;
@@ -370,7 +390,7 @@ class UserController extends ResponseController
         $saveWallet2->user_id = $saveRecord->id;
         $saveWallet2->percentage = 0;
         $saveWallet2->total_amount = ((int)$amount); //this should be flat 200 
-        $saveWallet2->credit_user_amount = 20000;
+        $saveWallet2->credit_user_amount = $staticSponserAmount;
         $saveWallet2->type_of_credit = "By Sponser";
         $saveWallet2->save();
         //END OF SPONSER USER WALLET
@@ -956,7 +976,12 @@ class UserController extends ResponseController
                 //}
             }
 
-            $addBalance = $user->balance_amount + $calculateAmount;
+            $addBalAmtCalculate = $calculateAmount;
+            if($sponser_id == $user->id){
+                $addBalAmtCalculate = $staticSponserAmount + $addBalAmtCalculate;
+            }
+
+            $addBalance = $user->balance_amount + $addBalAmtCalculate;
             User::whereId($user->id)->update(['balance_amount' => $addBalance]);
             $k--;
             
@@ -1193,7 +1218,9 @@ class UserController extends ResponseController
                 $column = "percentag_or_flat_amount";
             }elseif($order == 4){
                 $column = "credit_user_amount_in_rupees";
-            }else if($order == 5) {
+            }elseif($order == 5){
+                $column = "debit_amount_show";
+            }else if($order == 6) {
                 $column = "date_show";
             }
             
@@ -1202,9 +1229,9 @@ class UserController extends ResponseController
             
 
             if($admin->is_super_admin == 0) {
-                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
+                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
             }else{
-                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
+                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
             }
 
 
@@ -1227,6 +1254,7 @@ class UserController extends ResponseController
                             $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2))'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2))'), 'Like', '%' . $search . '%');
                         });
 
                 $filter = $data->get()->count();
@@ -1251,6 +1279,13 @@ class UserController extends ResponseController
 
                 $btn ="";
 
+                if(!$row->upline_user_id_with_name) {
+                    $row->upline_user_id_with_name = "-----";
+                }
+
+                if(!$row->under_user_id_with_name) {
+                    $row->under_user_id_with_name = "-----";
+                }
                 
                 
                 $btn .= '<a href="wallet-view/'.base64_encode($row->id).'"><button type="button" class="btn btn-warning same_wd_btn mr-2">View</button></a>';                
@@ -1277,7 +1312,7 @@ class UserController extends ResponseController
 
     public function viewWalletDetails(Request $request, $wallet_id) {
         $walletID = base64_decode($wallet_id);
-        $walletDetails = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'))->whereId($walletID)->first();
+        $walletDetails = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereId($walletID)->first();
 
         return view('admin.view-wallet', compact('walletDetails'));
     }
@@ -1285,6 +1320,9 @@ class UserController extends ResponseController
     public function usersWalletManagement(Request $request) {
         if($request->isMethod('GET')) {
             $admin = auth()->guard('admin')->user();
+            if($admin->is_super_admin == 0) {
+                return redirect(route('admin.dashboard'));
+            }
             return view('admin.users-wallet-management', compact('admin'));
         }
 
@@ -1304,13 +1342,17 @@ class UserController extends ResponseController
                 $column = "id";
             }elseif($order == 1){
                 $column = "user_name_with_id";
-            }elseif($order == 2){
-                $column = "tree_amount";
-            }elseif($order == 3){
-                $column = "direct_amount";
-            }elseif($order == 4){
+            }
+            // elseif($order == 2){
+            //     $column = "tree_amount";
+            // }elseif($order == 3){
+            //     $column = "direct_amount";
+            // }
+            elseif($order == 2){
                 $column = "total_amount_credit";
-            }else if($order == 5) {
+            }elseif($order == 3){
+                $column = "total_debit_amount";
+            }else if($order == 4) {
                 $column = "show_balance_amount";
             }else if($order == 5) {
                 $column = "updated_date_show";
@@ -1321,7 +1363,7 @@ class UserController extends ResponseController
             
 
             
-            $data = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'))->whereDeletedAt(null)->orderBy($column,$asc_desc);
+            $data = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_debit_amount'))->whereDeletedAt(null)->orderBy($column,$asc_desc);
             
 
 
@@ -1339,10 +1381,18 @@ class UserController extends ResponseController
             if($search){
                 $data  = $data->where(function($query) use($search){
                             $query->orWhere(DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT(custom_user_id, " (", name, ")")'), 'Like', '%' . $search . '%');
+
+                            
+
+                            // $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
+
+                            // $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.balance_amount / 100, 2))'), 'Like', '%' . $search . '%');
+
+                             $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2))'), 'Like', '%' . $search . '%');
+
+                            $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
                         });
 
                 $filter = $data->get()->count();
@@ -1395,8 +1445,13 @@ class UserController extends ResponseController
         if($request->isMethod('GET')) {
             $userID = base64_decode($user_id);
             $admin = auth()->guard('admin')->user();
+
+            if($admin->is_super_admin == 0) {
+                return redirect(route('admin.dashboard'));
+            }
+            
             $encodeID = $user_id;
-            $userDetails = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'))->whereId($userID)->first();
+            $userDetails = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_debit_amount'))->whereId($userID)->first();
             return view('admin.view-user-wallet-details', compact('admin', 'userID', 'encodeID', 'userDetails'));
         }
 
@@ -1423,7 +1478,9 @@ class UserController extends ResponseController
                 $column = "percentag_or_flat_amount";
             }elseif($order == 4){
                 $column = "credit_user_amount_in_rupees";
-            }else if($order == 5) {
+            }elseif($order == 5){
+                $column = "debit_amount_show";
+            }else if($order == 6) {
                 $column = "date_show";
             }
             
@@ -1432,7 +1489,7 @@ class UserController extends ResponseController
             
 
            
-            $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'))->whereDeletedAt(null)->where('credit_user_id', '=', $userID)->orderBy($column,$asc_desc);
+            $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $userID)->orderBy($column,$asc_desc);
             
 
 
@@ -1455,6 +1512,7 @@ class UserController extends ResponseController
                             $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2))'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2))'), 'Like', '%' . $search . '%');
                         });
 
                 $filter = $data->get()->count();
@@ -1480,6 +1538,14 @@ class UserController extends ResponseController
                 $btn ="";
 
                 
+                if(!$row->upline_user_id_with_name) {
+                    $row->upline_user_id_with_name = "-----";
+                }
+
+                if(!$row->under_user_id_with_name) {
+                    $row->under_user_id_with_name = "-----";
+                }
+
                 
                // $btn .= '<a href="wallet-view/'.base64_encode($row->id).'"><button type="button" class="btn btn-warning same_wd_btn mr-2">View</button></a>';                
 
@@ -1502,6 +1568,53 @@ class UserController extends ResponseController
             return response()->json($return_data);
         }
         
+    }
+
+    public function getUserBySponser(Request $request, $customUserID) {
+      //  return $customUserID;
+        $findUser = User::whereCustomUserId($customUserID)->first();
+
+        $underTakeUsersIds = UnderTakeUser::whereDeletedAt(null)->whereUplineId($findUser->id)->pluck('user_id');
+
+        $allUserIds = User::select('*', DB::raw('CONCAT(custom_user_id, " (", name, ")") AS show_custom_user_id'))->whereDeletedAt(null)->whereIsBlock(0)
+                        ->where(function($query) use($underTakeUsersIds) {
+                            $query->whereIn('id', $underTakeUsersIds);
+
+                        })->orWhere(function($query) use ($findUser) {
+                            $query->whereId($findUser->id);
+                        })->pluck('show_custom_user_id');
+        return $allUserIds;
+
+    }
+
+    public function debitWalletAmount(Request $request){
+        $data = $request->all();
+        $admin = auth()->guard('admin')->user();
+        if($admin->is_super_admin == 0) {
+            return ['status' => 'failed', 'message' => 'Only Super Admin can be withdraw amount.'];
+        }
+        $decodeID = base64_decode($data['encodeID']);
+        $debitAmount = $data['amount'] * 100;
+
+        $findUser = User::whereId($decodeID)->first();
+        
+        if($findUser->balance_amount < $debitAmount) {
+            return ['status' => 'failed', 'message' => 'Amount should be less than or equal to from balance amount.'];
+        }
+        
+        $findUser->balance_amount = $findUser->balance_amount - $debitAmount;
+        $findUser->update();
+
+
+        $walletHistory = new Wallet();
+        $walletHistory->credit_user_id = $decodeID;
+        $walletHistory->type_of_credit = "By Debit";
+        $walletHistory->debit_amount = $debitAmount;
+        $walletHistory->total_amount = 0;
+        $walletHistory->credit_user_amount = 0;
+        $walletHistory->save();
+
+        return ['status' => 'success', 'message' => 'Amount has been withdraw successfully.'];
     }
 
 }

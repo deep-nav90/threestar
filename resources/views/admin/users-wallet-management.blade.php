@@ -52,10 +52,11 @@
 									<tr>
 									<th>Sr. No.</th>
 									<th>User Name</th>
-									<th>Tree Amount</th>
-									<th>Direct Amount</th>
+									<!-- <th>Tree Amount</th>
+									<th>Direct Amount</th> -->
 									<!-- <th>Total Amount</th> -->
-                                    <th>Total Amount</th>
+                                    <th>Credit Amount</th>
+									<th>Debit Amount</th>
                                     <th>Balance Amount</th>
 									<th>Updated At</th>
 
@@ -258,15 +259,17 @@
               $( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','direct_amount').addClass('td_click');
               //$( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_in_rupees').addClass('td_click');
               $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_credit').addClass('td_click');
-			  $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','show_balance_amount').addClass('td_click');
-              $( row ).find('td:eq(6)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
+			  $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','total_debit_amount').addClass('td_click');
+			  $( row ).find('td:eq(6)').attr('data-id', data['id']).attr('key_type','show_balance_amount').addClass('td_click');
+              $( row ).find('td:eq(7)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
 			},
             "columns": [
               {data: 'DT_RowIndex', name: 'DT_RowIndex'},
               {data: 'user_name_with_id', name: 'user_name_with_id'},
-              {data: 'tree_amount', name: 'tree_amount'},
-              {data: 'direct_amount', name: 'direct_amount'},
+            //   {data: 'tree_amount', name: 'tree_amount'},
+            //   {data: 'direct_amount', name: 'direct_amount'},
               {data: 'total_amount_credit', name: 'total_amount_credit'},
+			  {data: 'total_debit_amount', name: 'total_debit_amount'},
               //{data: 'total_amount_in_rupees', name: 'total_amount_in_rupees'},
 			  {data: 'show_balance_amount', name: 'show_balance_amount'},
               {data: 'date_show', name: 'date_show'},

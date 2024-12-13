@@ -35,14 +35,14 @@
 										<tr>
 											<th>Upline User</th>
 											<td>
-												{{$walletDetails->upline_user_id_with_name}}
+												{{$walletDetails->upline_user_id_with_name ? $walletDetails->upline_user_id_with_name : '-----'}}
 											</td>
 										</tr>
 
 										<tr>
 											<th>Under User</th>
 											<td>
-                                            {{$walletDetails->under_user_id_with_name}}
+                                            {{$walletDetails->under_user_id_with_name ? $walletDetails->under_user_id_with_name : '-----'}}
 											</td>
 										</tr>
 										<tr>
@@ -62,6 +62,13 @@
 											<th>Credit Amoount</th>
 											<td>
                                             {{$walletDetails->credit_user_amount_in_rupees}}
+											</td>
+										</tr>
+
+										<tr>
+											<th>Debit Amoount</th>
+											<td>
+                                            {{$walletDetails->debit_amount_show}}
 											</td>
 										</tr>
 

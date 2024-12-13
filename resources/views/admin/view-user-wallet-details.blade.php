@@ -23,6 +23,31 @@
     margin-left: 120px;
     cursor: pointer;
 }
+
+.withdraw {
+    display: flex;
+    margin: 20px 0px 0px 20px;
+}
+
+.table-responsive.simple_table.ppa {
+    margin: 0;
+}
+
+button.btn.btn-withdraw {
+    color: #ffffff;
+    background-color: green;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.hidden {
+  display: none;
+}
+
+div#lodaerModal {
+    text-align: center;
+    top: 50%;
+}
 	</style>
 
 		<div class="main-panel dashboard_panel">
@@ -42,9 +67,18 @@
                     <h1>User Wallet Details</h1>
 
                     <div class="card">
+
+                        <div class="withdraw">
+                            <a href="javascript:void(0);" id="withdrawBtn">
+                              <button type="button" class="btn btn-withdraw">Withdraw Amount</button>
+                            </a>
+                        </div>
+
                         <div class="card-body add_imgae_box">
+
+                        
                             
-                            <div class="table-responsive simple_table">
+                            <div class="table-responsive simple_table ppa">
                                 <table class="display table table-striped table-hover dataTable" >
                                     <!-- <thead>
                                         <tr>
@@ -78,9 +112,16 @@
                                         </tr>
 
                                         <tr>
-                                            <th>Total Amount Credit</th>
+                                            <th>Total Credit Amount</th>
                                             <td>
                                                 {{$userDetails->total_amount_credit}}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Total Debit Amount</th>
+                                            <td>
+                                                {{$userDetails->total_debit_amount}}
                                             </td>
                                         </tr>
 
@@ -121,6 +162,7 @@
 									<th>Percentage/Flat</th>
 									<!-- <th>Total Amount</th> -->
                                     <th>Credit Amount</th>
+                                    <th>Debit Amount</th>
 									<th>Created At</th>
 
 									<!-- <th>Action</th> -->
@@ -177,6 +219,51 @@
 	        <button type="button" id="cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
   	</form>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="withDrawModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #57b4ca">
+<!--         <button type="button" class="close" data-dismiss="modal">&times;</button>
+ -->
+ <div class="text-center" style="width: 100%;">       
+  <h4 class="modal-title" style="font-size: 18px; color: #000000; font-weight:600">Withdraw Amount</h4>
+</div>
+      </div>
+      <div class="modal-body">
+
+      <div class="row">
+										<!-- Name Field -->
+          <div class="col-md-12">
+            <label for="amount" style="font-weight:600;" class="pb-1">Amount</label>
+            <span class="artisan-star">*</span>
+            <div class="form-group p-0">
+              <input style="background-color:#ffffff; border-color: #2f374b!important" id="amount" type="number" class="form-control" placeholder="Enter Amount" name="amount">
+              <label id="withdrawAmount-error" class="error hidden" for="withdrawAmount">Please enter amount.</label>
+            </div>
+          </div>
+
+									
+								
+        </div>
+      	
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="submitWithdraw" class="btn btn-danger" style="background-color: #57b4ca!important; border-color:#57b4ca!important;     color: #000000;
+    font-weight: 600;" data-bs-dismiss="modal">Withdraw</button>
+        <button type="button" id="cancelBtn" class="btn btn-danger" style="background-color: #575962 !important;
+    border-color: #575962 !important; font-weight:600" data-bs-dismiss="modal">Cancel</button>
+      </div>
+
+      
     </div>
 
   </div>
@@ -322,7 +409,8 @@
               $( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','percentag_or_flat_amount').addClass('td_click');
               //$( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_in_rupees').addClass('td_click');
               $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','credit_user_amount_in_rupees').addClass('td_click');
-			  $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
+              $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','debit_amount_show').addClass('td_click');
+			        $( row ).find('td:eq(6)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
 			},
             "columns": [
               {data: 'DT_RowIndex', name: 'DT_RowIndex'},
@@ -330,7 +418,8 @@
               {data: 'under_user_id_with_name', name: 'name'},
               {data: 'percentag_or_flat_amount', name: 'percentag_or_flat_amount'},
               //{data: 'total_amount_in_rupees', name: 'total_amount_in_rupees'},
-			  {data: 'credit_user_amount_in_rupees', name: 'credit_user_amount_in_rupees'},
+			        {data: 'credit_user_amount_in_rupees', name: 'credit_user_amount_in_rupees'},
+              {data: 'debit_amount_show', name: 'debit_amount_show'},
               {data: 'date_show', name: 'date_show'},
               //{data: 'action', name: 'action', orderable: false, searchable: false},
             ],
@@ -397,6 +486,83 @@
         $('.advance-options-user').slideToggle();
       });
 
+
+
+      $("#withdrawBtn").on("click", function(){
+
+        $("#withDrawModal").modal({
+          backdrop: 'static', // Prevent closing on outside click
+          keyboard: false     // Optional: Prevent closing on "Escape" key press
+        });
+        $("#withDrawModal").modal("show");
+      })
+
+      $("#cancelBtn").on("click", function() {
+        $("#withDrawModal").modal("hide");
+      })
+
+      $("#submitWithdraw").on("click", function() {
+        if($('#amount').val().trim()) {
+          $("#withdrawAmount-error").addClass("hidden");
+        }else{
+          $("#withdrawAmount-error").removeClass("hidden");
+          return false;
+        }
+
+        var dataPayload = {
+          '_token': "{{csrf_token()}}",
+          'encodeID': "{{$encodeID}}",
+          'amount' : $("#amount").val().trim()
+        };
+        $("#lodaerModal").modal("show");
+        $.ajax({
+					url: "{{url('admin/debit-wallet-amount')}}",
+					type:'POST',
+					data:dataPayload,
+					success: function(res){
+            console.log("TRTTTTTTTTTTTT",res);
+            $("#withDrawModal").modal("hide");
+						
+						setTimeout(() => {
+
+              if(res.status == "success") {
+                alert(res.message)
+                window.location.href = ""; 
+              }else{
+                alert(res.message);
+                window.location.href = "";  
+              }
+
+							$("#lodaerModal").modal("hide");
+						}, 500);
+						
+					},
+					error: function(data, textStatus, xhr) {
+					if(data.status == 422){
+            $("#withDrawModal").modal("hide");
+						setTimeout(() => {
+							$("#lodaerModal").modal("hide");
+						}, 500);
+						var result = data.responseJSON;
+						alert('Something went worng.');
+						window.location.href = "";
+						return false;
+					} 
+					}
+				});
+
+        
+        
+      })
+
+
+      $("#amount").on("keyup", function(){
+        if($(this).val().trim()) {
+          $("#withdrawAmount-error").addClass("hidden");
+        }else{
+          $("#withdrawAmount-error").removeClass("hidden");
+        }
+      })
 
     });
       </script>

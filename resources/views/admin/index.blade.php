@@ -28,7 +28,7 @@
 					</div>
 					<div class="row mt-5">
 						<div class="col-md-6 mb_bottom ">
-							<a href="{{route('admin.userManagement')}}" class="hover_box">
+							<a href="javascript:void(0);" class="hover_box">
 								<div class="box">
 									<span class="total_count">{{$totalUsers}}</span>
 									<div class="icon_text">
@@ -43,13 +43,13 @@
 
 						
 						<div class="col-md-6 mb_bottom ">
-							<a href="{{route('admin.userManagement')}}" class="hover_box">
+							<a href="javascript:void(0);" class="hover_box">
 								<div class="box">
 									<span class="total_count">{{$myWalletCreditFormat}}</span>
 									<div class="icon_text">
 									<i class="fas fa-wallet"></i>
 										<h2>
-											My Wallet Balance
+											My Wallet Credit Amount
 										</h2>
 									</div>
 								</div>
@@ -60,10 +60,73 @@
 						
 						
 					</div>
+
+
+					<div class="row mt-5">
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$myWalletTreeAmountFormat}}</span>
+									<div class="icon_text">
+										<i class="fas fa-user"></i>
+										<h2>
+											My Wallet Tree Amount
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$myWalletDirectAmountFormat}}</span>
+									<div class="icon_text">
+										<i class="fas fa-user"></i>
+										<h2>
+											My Wallet Direct Amount
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+					</div>
+
+
+					<div class="row mt-5">
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$myWalletDebitFormat}}</span>
+									<div class="icon_text">
+										<i class="fas fa-user"></i>
+										<h2>
+											My Wallet Debit Amount
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$balanceAmount}}</span>
+									<div class="icon_text">
+										<i class="fas fa-user"></i>
+										<h2>
+											My Balance Amount
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+					</div>
+
 					@if(Auth::guard('admin')->user()->is_super_admin == 1)
 					<div class="row mt-5">
 						<div class="col-md-6 mb_bottom ">
-							<a href="{{route('admin.userManagement')}}" class="hover_box">
+							<a href="javascript:void(0);" class="hover_box">
 								<div class="box">
 									<span class="total_count">{{$adminWalletAmount}}</span>
 									<div class="icon_text">
@@ -78,7 +141,7 @@
 
 
 						<div class="col-md-6 mb_bottom ">
-							<a href="{{route('admin.userManagement')}}" class="hover_box">
+							<a href="javascript:void(0);" class="hover_box">
 								<div class="box">
 									<span class="total_count">{{$totalCreditAmtFormat}}</span>
 									<div class="icon_text">
@@ -95,7 +158,7 @@
 					<div class="row mt-5">
 						<!-- @if(Auth::guard('admin')->user()->is_super_admin == 1)
 							<div class="col-md-6 mb_bottom ">
-								<a href="{{route('admin.userManagement')}}" class="hover_box">
+								<a href="javascript:void(0);" class="hover_box">
 									<div class="box">
 										<span class="total_count">{{$totalAmount}}</span>
 										<div class="icon_text">
@@ -112,7 +175,7 @@
 						@endif() -->
 
 						<div class="col-md-6 mb_bottom ">
-							<a href="{{route('admin.userManagement')}}" class="hover_box">
+							<a href="javascript:void(0);" class="hover_box">
 								<div class="box">
 									<span class="total_count">0</span>
 									<div class="icon_text">
@@ -127,7 +190,7 @@
 
 
 						<div class="col-md-6 mb_bottom ">
-							<a href="{{route('admin.userManagement')}}" class="hover_box">
+							<a href="javascript:void(0);" class="hover_box">
 								<div class="box">
 									<span class="total_count">Level {{Auth::guard('admin')->user()->user_level}}</span>
 									<div class="icon_text">
@@ -141,6 +204,9 @@
 						</div>
 
 					</div>
+
+					
+
 					
 
 				</div>

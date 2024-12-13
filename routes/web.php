@@ -61,11 +61,12 @@ Route::group(['middleware'=>['loginAuthenticate'], 'namespace' => 'Admin','prefi
     Route::get('wallet-view/{wallet_id}', [UserController::class, 'viewWalletDetails'])->name('viewWalletDetails');
 
     Route::get('logout', [UserController::class,'logout'])->name('logout');
+    Route::post('get-users-by-sponser/{custom_user_id}', [UserController::class, 'getUserBySponser'])->name('getUserBySponser');
 
     Route::match(['GET', 'POST'], 'users-wallet-management',[UserController::class, 'usersWalletManagement'])->name('usersWalletManagement');
     Route::match(['GET', 'POST'],'users-wallet-view/{wallet_id}', [UserController::class, 'usersViewWalletDetails'])->name('usersViewWalletDetails');
     
-
+    Route::post('debit-wallet-amount', [UserController::class,'debitWalletAmount'])->name('debitWalletAmount');
     Route::post('delete-user','UserController@deleteUser')->name('deleteUser');
     Route::post('block-user','UserController@blockUser')->name('blockUser');
 
