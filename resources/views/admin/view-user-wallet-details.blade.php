@@ -252,7 +252,7 @@ label.error {
             <label for="amount" style="font-weight:600;" class="pb-1">Amount</label>
             <span class="artisan-star">*</span>
             <div class="form-group p-0">
-              <input style="background-color:#ffffff; border-color: #2f374b!important" id="amount" type="number" class="form-control" placeholder="Enter Amount" name="amount">
+              <input style="background-color:#ffffff; border-color: #2f374b!important" id="amount" min="1" oncopy="return false;" oncut="return false;" onpaste="return false;" onkeypress="return isNumeric(event)"  type="number" class="form-control" placeholder="Enter Amount" name="amount">
               <label id="withdrawAmount-error" class="error hidden" for="withdrawAmount">Please enter amount.</label>
             </div>
           </div>
@@ -572,6 +572,15 @@ label.error {
       })
 
     });
+
+    function isNumeric(event) {
+        const char = String.fromCharCode(event.which);
+        if (!/[\d.]/.test(char)) {
+            return false;
+        }
+        return true;
+    }
+
       </script>
 @endsection()
 
