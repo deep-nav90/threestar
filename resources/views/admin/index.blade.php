@@ -156,32 +156,15 @@
 					</div>
 					@endif()
 					<div class="row mt-5">
-						<!-- @if(Auth::guard('admin')->user()->is_super_admin == 1)
-							<div class="col-md-6 mb_bottom ">
-								<a href="javascript:void(0);" class="hover_box">
-									<div class="box">
-										<span class="total_count">{{$totalAmount}}</span>
-										<div class="icon_text">
-											<i class="fas fa-rupee-sign"></i>
-											<h2>
-												Total Amount
-											</h2>
-										</div>
-									</div>
-								</a>
-							</div>
-
-						
-						@endif() -->
-
+					
 						<div class="col-md-6 mb_bottom ">
 							<a href="javascript:void(0);" class="hover_box">
 								<div class="box">
-									<span class="total_count">0</span>
+									<span class="total_count">{{$admin->winnig_reward}}</span>
 									<div class="icon_text">
 									<i class="fas fa-gift"></i>
 										<h2>
-											My Reward
+											Winning Reward
 										</h2>
 									</div>
 								</div>
@@ -205,6 +188,97 @@
 
 					</div>
 
+
+
+					<div class="row mt-5">
+					
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$claimRewards}}</span>
+									<div class="icon_text">
+									<i class="fas fa-gift"></i>
+										<h2>
+											Claim Reward
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$pendingRewards}}</span>
+									<div class="icon_text">
+									<i class="fas fa-level-up-alt"></i>
+										<h2>
+											Pending Reward
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+					</div>
+
+
+					@if(Auth::guard('admin')->user()->is_super_admin == 1)
+					<div class="row mt-5">
+					
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$totalUsersWinnigRewards}}</span>
+									<div class="icon_text">
+									<i class="fas fa-award"></i>
+										<h2>
+											Total Users Winning Reward
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$totalUsersClaimRewards}}</span>
+									<div class="icon_text">
+									<i class="fas fa-award"></i>
+										<h2>
+											Total Users Claim Reward
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+					</div>
+					@endif()
+
+
+					@if(Auth::guard('admin')->user()->is_super_admin == 1)
+					<div class="row mt-5">
+					
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$totalUsersPendingReward}}</span>
+									<div class="icon_text">
+									<i class="fas fa-award"></i>
+										<h2>
+											Total Users Pending Reward
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
+					</div>
+					@endif()
 					
 
 					

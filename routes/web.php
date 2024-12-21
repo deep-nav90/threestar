@@ -67,6 +67,26 @@ Route::group(['middleware'=>['loginAuthenticate'], 'namespace' => 'Admin','prefi
     Route::match(['GET', 'POST'],'users-wallet-view/{wallet_id}', [UserController::class, 'usersViewWalletDetails'])->name('usersViewWalletDetails');
     
     Route::post('debit-wallet-amount', [UserController::class,'debitWalletAmount'])->name('debitWalletAmount');
+
+
+    Route::match(['GET', 'POST'], 'reward-management',[UserController::class, 'rewardManagement'])->name('rewardManagement');
+    Route::match(['GET', 'POST'], 'add-reward',[UserController::class, 'addReward'])->name('addReward');
+    Route::get('reward-view/{reward_id}',[UserController::class, 'rewardView'])->name('rewardView');
+    Route::match(['GET', 'POST'],'reward-edit/{reward_id}',[UserController::class, 'rewardEdit'])->name('rewardEdit');
+
+    Route::post('reward-claim',[UserController::class, 'rewardClaim'])->name('rewardClaim');
+
+    Route::post('reward-delete',[UserController::class, 'deleteReward'])->name('deleteReward');
+
+    Route::match(['GET', 'POST'], 'claim-reward-list',[UserController::class, 'claimRewardManagement'])->name('claimRewardManagement');
+    Route::get('claim-reward-view/{claim_reward_id}',[UserController::class, 'viewClaimRewardDetail'])->name('viewClaimRewardDetail');
+    
+
+
+    Route::post('claim-reward-list-by-id',[UserController::class, 'claimRecordListByID'])->name('claimRecordListByID');
+
+    Route::get('users-wallet-view/claim-reward-list-by-id-view-detail/{user_id}/{reward_id}',[UserController::class, 'claimRewardByUserIDViewDetails'])->name('claimRewardByUserIDViewDetails');
+
     Route::post('delete-user','UserController@deleteUser')->name('deleteUser');
     Route::post('block-user','UserController@blockUser')->name('blockUser');
 

@@ -22,6 +22,9 @@ use Hash;
 use App\Models\Level;
 use Illuminate\Support\Arr;
 use App\Models\Wallet;
+use App\Models\Reward;
+use App\Models\RewardImage;
+use App\Models\ClaimReward;
 class UserController extends ResponseController
 {
 
@@ -29,6 +32,13 @@ class UserController extends ResponseController
 
     public function __construct(AdminManage $adminManage){
         $this->adminManage = $adminManage;
+    }
+
+    public static function uploadFile($file, $destinationPath){
+        $fileName = date('mdYHis') . uniqid().'.'.$file->getClientOriginalExtension();
+        $file->move($destinationPath, $fileName);
+
+        return $fileName;
     }
 
     public function login(Request $request) {
@@ -95,7 +105,16 @@ class UserController extends ResponseController
         $myWalletDirectAmountInt = Wallet::whereCreditUserId($admin->id)->whereTypeOfCredit('By Sponser')->sum('credit_user_amount');
         $myWalletDirectAmountFormat = $this->formatToIndianRupees($myWalletDirectAmountInt);
 
-        return view('admin.index', compact('totalUsers', 'totalAmount', 'adminWalletAmount', 'totalCreditAmtFormat', 'myWalletCreditFormat', 'balanceAmount', 'myWalletDebitFormat', 'myWalletTreeAmountFormat', 'myWalletDirectAmountFormat'));
+        $claimRewards = ClaimReward::whereUserId($admin->id)->whereDeletedAt(null)->count();
+
+        $pendingRewards = $admin->winnig_reward - $claimRewards;
+
+        $totalUsersWinnigRewards = User::whereDeletedAt(null)->sum('winnig_reward');
+        $totalUsersClaimRewards = ClaimReward::whereDeletedAt(null)->count();
+        $totalUsersPendingReward = $totalUsersWinnigRewards - $totalUsersClaimRewards;
+
+
+        return view('admin.index', compact('totalUsers', 'totalAmount', 'adminWalletAmount', 'totalCreditAmtFormat', 'myWalletCreditFormat', 'balanceAmount', 'myWalletDebitFormat', 'myWalletTreeAmountFormat', 'myWalletDirectAmountFormat', 'admin', 'claimRewards', 'pendingRewards',  'totalUsersWinnigRewards', 'totalUsersClaimRewards', 'totalUsersPendingReward'));
     }
 
     function formatToIndianRupees($amountInPaisa) {
@@ -411,6 +430,12 @@ class UserController extends ResponseController
             $userLevel = $user->user_level;
             $checkLevel = $userLevel + 1;
 
+            $winnigReward = 0;
+
+            if($checkLevel >= 3) {
+                $winnigReward = (int)$user->winnig_reward + 1;
+            }
+
             $levelRecordArray = Arr::first($levelsTable, function ($item) use ($checkLevel) {
                 return $item['level'] === $checkLevel;
             });
@@ -424,7 +449,7 @@ class UserController extends ResponseController
                 $case1 = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ?", ["(,|^)$user->id$"])->get();
 
                 if(count($case1) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }
             }else if($checkLevel == 2) {
                 $case2 = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", 1])->get();
@@ -435,7 +460,7 @@ class UserController extends ResponseController
                 // ->get();
 
                 if(count($case2) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -469,7 +494,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 3) {
@@ -477,7 +502,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -511,7 +536,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 4) {
@@ -519,7 +544,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -553,7 +578,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 5) {
@@ -561,7 +586,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -595,7 +620,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 6) {
@@ -603,7 +628,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -637,7 +662,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 7) {
@@ -645,7 +670,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -679,7 +704,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 8) {
@@ -687,7 +712,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -721,7 +746,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 9) {
@@ -729,7 +754,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -763,7 +788,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 10) {
@@ -771,7 +796,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -805,7 +830,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 11) {
@@ -813,7 +838,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -847,7 +872,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 12) {
@@ -855,7 +880,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -889,7 +914,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }else if($checkLevel == 13) {
@@ -897,7 +922,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -931,7 +956,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
                     }
                 }
             }
@@ -1360,6 +1385,8 @@ class UserController extends ResponseController
             }else if($order == 4) {
                 $column = "show_balance_amount";
             }else if($order == 5) {
+                $column = "winnig_reward";
+            }else if($order == 6) {
                 $column = "updated_date_show";
             }
             
@@ -1398,6 +1425,9 @@ class UserController extends ResponseController
                              $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2))'), 'Like', '%' . $search . '%');
 
                             $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
+
+                            $query->orWhere('winnig_reward', 'Like', '%' . $search . '%');
+
                         });
 
                 $filter = $data->get()->count();
@@ -1454,10 +1484,14 @@ class UserController extends ResponseController
             if($admin->is_super_admin == 0) {
                 return redirect(route('admin.dashboard'));
             }
+
+            $countClaimRewards = ClaimReward::whereDeletedAt(null)->whereUserId($userID)->count();
+
+            $rewards = Reward::whereDeletedAt(null)->whereRewardLevel($admin->user_level)->with('rewardImages')->get();
             
             $encodeID = $user_id;
             $userDetails = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_debit_amount'))->whereId($userID)->first();
-            return view('admin.view-user-wallet-details', compact('admin', 'userID', 'encodeID', 'userDetails'));
+            return view('admin.view-user-wallet-details', compact('admin', 'userID', 'encodeID', 'userDetails', 'rewards', 'countClaimRewards'));
         }
 
         if($request->isMethod('POST')) {
@@ -1626,7 +1660,589 @@ class UserController extends ResponseController
         $walletHistory->credit_user_amount = 0;
         $walletHistory->save();
 
+        Session::flash('message', 'Amount has been withdraw successfully.');
         return ['status' => 'success', 'message' => 'Amount has been withdraw successfully.'];
+    }
+
+    public function rewardManagement(Request $request) {
+        if($request->isMethod('GET')) {
+           
+            $admin = auth()->guard('admin')->user();
+
+            if($admin->is_super_admin == 0) {
+                return redirect(route('admin.dashboard'));
+            }
+            
+            return view('admin.reward-management');
+        }
+
+        if($request->isMethod('POST')) {
+            $admin = auth()->guard('admin')->user();
+            $column = "id";
+            $asc_desc = $request->get("order")[0]['dir'];
+
+            if($asc_desc == "asc"){
+                $asc_desc = "desc";
+            }else{
+                $asc_desc = "asc";
+            }
+
+            $order = $request->get("order")[0]['column'];
+            if($order == 0){
+                $column = "id";
+            }elseif($order == 1){
+                $column = "image";
+            }elseif($order == 2){
+                $column = "reward_name";
+            }elseif($order == 3){
+                $column = "reward_level";
+            }else if($order == 4) {
+                $column = "date_show";
+            }
+            
+
+            //all user in superadmin case to show
+            
+
+           
+            $data = Reward::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'))->whereDeletedAt(null)->orderBy($column,$asc_desc)->with('rewardImages');
+            
+
+
+            $total = $data->get()->count();
+
+            if(!empty($request->get("search")["value"])){
+                $search = $request->get("search")["value"];
+            }else{
+
+                $search = $request->search_txt;
+            }
+            $filter = $total;
+
+
+            if($search){
+                $data  = $data->where(function($query) use($search){
+                            $query->orWhere(DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
+                            $query->orWhere('reward_name', 'Like', '%' . $search . '%');
+                            $query->orWhere('reward_level', 'Like', '%' . $search . '%');
+                        });
+
+                $filter = $data->get()->count();
+
+            }
+
+            $data = $data->offset($request->start);
+            $data = $data->take($request->length);
+            $data = $data->get();
+
+
+            $start_from = $request->start;
+            if($start_from == 0){
+                $start_from  = 1;
+            }
+            if($start_from % 10 == 0){
+                $start_from = $start_from + 1;
+            }
+
+
+            foreach ($data as $k => $row) {
+
+                $btn ="";
+
+                if($row->rewardImages && count($row->rewardImages) > 0) {
+                    $row->defaultImage = $row->rewardImages[0]['image'];
+                    
+                }else{
+                    $row->defaultImage = url('/public/admin/assets/img') . "/" . 'dummy-t.png';
+                }
+
+                //$row->defaultImage = url('/public/admin/assets/img') . "/" . 'dummy-t.png';
+
+                
+                $btn .= '<a href="reward-view/'.base64_encode($row->id).'"><button type="button" class="btn btn-warning same_wd_btn mr-2">View</button></a>';    
+                
+                $btn .= '<a href="reward-edit/'.base64_encode($row->id).'"><button type="button" class="btn btn-warning same_wd_btn border_btn mr-2">Edit</button></a>';
+
+                $btn .= '<button type="button" ui="'.base64_encode($row->id).'" class="btn btn-warning same_wd_btn delete">Delete</button>';
+
+                $row->action = $btn;
+
+                $row->DT_RowIndex = $start_from++;
+
+
+
+            }
+
+
+            $return_data = [
+                    "data" => $data,
+                    "draw" => (int)$request->draw,
+                    "recordsTotal" => $total,
+                    "recordsFiltered" => $filter,
+                    "input" => $request->all()
+            ];
+            return response()->json($return_data);
+        }
+    }
+
+    public function addReward(Request $request) {
+        if($request->isMethod('GET')) {
+
+            $admin = auth()->guard('admin')->user();
+
+            if($admin->is_super_admin == 0) {
+                return redirect(route('admin.dashboard'));
+            }
+
+            $levels = Level::whereDeletedAt(null)->get();
+
+            return view('admin.add-reward', compact('levels'));
+        }
+
+        if($request->isMethod('POST')) {
+            $data = $request->all();
+
+            $saveReward = new Reward();
+            $saveReward->reward_name = $data['reward_name'];
+            $saveReward->reward_level = $data['reward_level'];
+            $saveReward->save();
+
+
+            $acceptable_files = array_filter($data['acceptable']);
+            $non_acceptable_files = array_filter($data['non_acceptable']);
+
+            $explode_accepted_files = explode(',', $acceptable_files[0]);
+
+            if(isset($non_acceptable_files[0]) && !empty($non_acceptable_files[0])){
+
+                $explode_non_accepted_files = explode(',', $non_acceptable_files[0]);
+
+
+
+                //#override and remove dupicate array
+                $explode_accepted_files = array_diff($explode_accepted_files, $explode_non_accepted_files);
+
+            }
+
+
+            $files_uploded = $request->file("files");
+
+            $files = [];
+
+            foreach ($explode_accepted_files as $acceptable_file) {
+
+                $exp_file = explode('_', $acceptable_file);
+
+                $extension = $files_uploded[$exp_file[0]][$exp_file[1]]->getClientOriginalExtension();
+
+                if($extension == "jpg" || $extension == "png" || $extension == "jpeg" || $extension == "JPG" || $extension == "PNG" || $extension == "JPEG" || $extension == "heif" || $extension == "heic" || $extension == "Heif" || $extension == "Heic"){
+
+                    $destinationPath = storage_path(). DIRECTORY_SEPARATOR . env('UPLOAD_STORAGE_FILES');
+                    $file_name = $this->uploadFile($files_uploded[$exp_file[0]][$exp_file[1]], $destinationPath);
+
+                    $files[] = ['file_url' => $file_name, 'file_type' => "image"];
+                }
+
+            }
+
+
+            foreach ($files as $file) {
+                $reward_image = new RewardImage();
+                $reward_image->reward_id = $saveReward->id;
+                $reward_image->image = $file['file_url'];
+                $reward_image->save();
+            }
+
+            Session::flash('message', 'Reward has been added successfully.');
+            return redirect(route('admin.rewardManagement'));
+
+        }
+    }
+
+    public function rewardEdit(Request $request, $reward_id) {
+        if($request->isMethod('GET')) {
+            
+            $rewardID = base64_decode($reward_id);
+            $admin = auth()->guard('admin')->user();
+
+            if($admin->is_super_admin == 0) {
+                return redirect(route('admin.dashboard'));
+            }
+
+            $levels = Level::whereDeletedAt(null)->get();
+
+            $findReward = Reward::whereId($rewardID)->with('rewardImages')->first();
+
+            $image_count = RewardImage::whereRewardId($rewardID)->count();
+
+
+            return view('admin.edit-reward', compact('levels', 'findReward', 'rewardID', 'reward_id', 'image_count'));
+        }
+
+        if($request->isMethod('POST')) {
+           // return $request->all();
+            $rewardID = base64_decode($reward_id);
+            $findReward = Reward::whereId($rewardID)->with('rewardImages')->first();
+
+            $findReward->reward_name = $request->reward_name;
+            $findReward->reward_level = $request->reward_level;
+            $findReward->update();
+
+
+            $acceptable_files = array_filter($request->acceptable);
+            $non_acceptable_files = array_filter($request->non_acceptable);
+
+
+            $deleted_files = $request->file_deleted;
+
+            if(!empty($deleted_files)){
+                $explode_del_files = explode(',',$deleted_files);
+
+                //delete files
+
+                RewardImage::whereIn('id',$explode_del_files)->delete();
+                //
+            }
+
+
+            if(count($acceptable_files) > 0){
+
+                $explode_accepted_files = explode(',', $acceptable_files[0]);
+            }else{
+                $explode_accepted_files = [];
+            }
+
+            if(isset($non_acceptable_files[0]) && !empty($non_acceptable_files[0])){
+
+                $explode_non_accepted_files = explode(',', $non_acceptable_files[0]);
+
+
+
+                //#override and remove dupicate array
+                $explode_accepted_files = array_diff($explode_accepted_files, $explode_non_accepted_files);
+
+            }
+
+
+            $files_uploded = $request->file("files");
+
+            $files = [];
+
+            foreach ($explode_accepted_files as $acceptable_file) {
+
+                $exp_file = explode('_', $acceptable_file);
+
+                $extension = $files_uploded[$exp_file[0]][$exp_file[1]]->getClientOriginalExtension();
+
+                if($extension == "jpg" || $extension == "png" || $extension == "jpeg" || $extension == "JPG" || $extension == "PNG" || $extension == "JPEG" || $extension == "heif" || $extension == "heic" || $extension == "Heif" || $extension == "Heic"){
+
+                    $destinationPath = storage_path(). DIRECTORY_SEPARATOR . env('UPLOAD_STORAGE_FILES');
+                    $file_name = $this->uploadFile($files_uploded[$exp_file[0]][$exp_file[1]], $destinationPath);
+
+                    $files[] = ['file_url' => $file_name, 'file_type' => "image"];
+                }
+
+            }
+
+
+            foreach ($files as $file) {
+                $reward_image = new RewardImage();
+                $reward_image->reward_id = $findReward->id;
+                $reward_image->image = $file['file_url'];
+                $reward_image->save();
+            }
+
+            Session::flash('message', 'Reward has been updated successfully.');
+            return redirect(route('admin.rewardManagement'));
+
+        }
+    }
+
+    public function rewardView(Request $request, $reward_id) {
+        $rewardID = base64_decode($reward_id);
+        $admin = auth()->guard('admin')->user();
+
+        if($admin->is_super_admin == 0) {
+            return redirect(route('admin.dashboard'));
+        }
+
+        $levels = Level::whereDeletedAt(null)->get();
+
+        $findReward = Reward::whereId($rewardID)->with('rewardImages')->first();
+
+        $image_count = RewardImage::whereRewardId($rewardID)->count();
+
+
+        return view('admin.view-reward', compact('levels', 'findReward', 'rewardID', 'reward_id', 'image_count'));
+    }
+
+    public function rewardClaim(Request $request) {
+        $decodeID = base64_decode($request->encodeUserId);
+        $encodeRewardID = $request->encodeRewardID;
+        $decodeEncodeRewardID = base64_decode($encodeRewardID);
+        $admin = auth()->guard('admin')->user();
+        if($admin->is_super_admin == 0) {
+            return ['status' => 'failed', 'message' => 'Only Super Admin can be withdraw reward.'];
+        }
+
+        $findUser = User::whereId($decodeID)->first();
+
+        $countClaimRewards = ClaimReward::whereDeletedAt(null)->whereUserId($decodeID)->count();
+
+        
+        if($countClaimRewards >= $findUser->winnig_reward) {
+            return ['status' => 'failed', 'message' => 'You have no rewards.'];
+        }
+
+        $saveClaimReward = new ClaimReward();
+        $saveClaimReward->user_id = $findUser->id;
+        $saveClaimReward->reward_id = $decodeEncodeRewardID;
+        $saveClaimReward->save();
+
+        Session::flash('message', 'Reward has been withdraw successfully.');
+        return ['status' => 'success', 'message' => 'Reward has been withdraw successfully.'];
+        
+
+    }
+
+    public function deleteReward(Request $request) {
+        $reward_id = base64_decode($request->reward_id);
+        Reward::whereId($reward_id)->update(['deleted_at' => Carbon::now()]);
+        Session::flash('message', 'Reward has been deleted successfully.');
+        return redirect(route('admin.rewardManagement'));
+    }
+
+    public function claimRewardManagement(Request $request) {
+        if($request->isMethod('GET')) {
+            $admin = auth()->guard('admin')->user();
+            //return ClaimReward::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('(SELECT name from users where users.id = claim_rewards.user_id) AS user_name'), DB::raw('(SELECT reward_name from rewards where rewards.id = claim_rewards.reward_id) AS reward_name'))->whereUserId($admin->id)->get();
+            return view('admin.claim-reward-list');
+        }
+
+        if($request->isMethod('POST')) {
+            $admin = auth()->guard('admin')->user();
+            $column = "id";
+            $asc_desc = $request->get("order")[0]['dir'];
+
+            if($asc_desc == "asc"){
+                $asc_desc = "desc";
+            }else{
+                $asc_desc = "asc";
+            }
+
+            $order = $request->get("order")[0]['column'];
+            if($order == 0){
+                $column = "id";
+            }elseif($order == 1){
+                $column = "image";
+            }elseif($order == 2){
+                $column = "reward_name";
+            }elseif($order == 3){
+                $column = "user_name";
+            }else if($order == 4) {
+                $column = "date_show";
+            }
+            
+
+            //all user in superadmin case to show
+            
+
+           
+            $data = ClaimReward::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('(SELECT name from users where users.id = claim_rewards.user_id) AS user_name'), DB::raw('(SELECT reward_name from rewards where rewards.id = claim_rewards.reward_id) AS reward_name'))->whereUserId($admin->id)->orderBy($column,$asc_desc)->with('reward');
+            
+
+
+            $total = $data->get()->count();
+
+            if(!empty($request->get("search")["value"])){
+                $search = $request->get("search")["value"];
+            }else{
+
+                $search = $request->search_txt;
+            }
+            $filter = $total;
+
+
+            if($search){
+                $data  = $data->where(function($query) use($search){
+                            $query->orWhere(DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('(SELECT name from users where users.id = claim_rewards.user_id)'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('(SELECT reward_name from rewards where rewards.id = claim_rewards.reward_id)'), 'Like', '%' . $search . '%');
+                        });
+
+                $filter = $data->get()->count();
+
+            }
+
+            $data = $data->offset($request->start);
+            $data = $data->take($request->length);
+            $data = $data->get();
+
+
+            $start_from = $request->start;
+            if($start_from == 0){
+                $start_from  = 1;
+            }
+            if($start_from % 10 == 0){
+                $start_from = $start_from + 1;
+            }
+
+
+            foreach ($data as $k => $row) {
+
+                $btn ="";
+
+                if($row->reward->rewardImages && count($row->reward->rewardImages) > 0) {
+                    $row->defaultImage = $row->reward->rewardImages[0]['image'];
+                    
+                }else{
+                    $row->defaultImage = url('/public/admin/assets/img') . "/" . 'dummy-t.png';
+                }
+
+
+                $btn .= '<a href="claim-reward-view/'.base64_encode($row->id).'"><button type="button" class="btn btn-warning same_wd_btn mr-2">View</button></a>'; 
+
+                $row->action = $btn;
+
+                $row->DT_RowIndex = $start_from++;
+
+            }
+
+
+            $return_data = [
+                    "data" => $data,
+                    "draw" => (int)$request->draw,
+                    "recordsTotal" => $total,
+                    "recordsFiltered" => $filter,
+                    "input" => $request->all()
+            ];
+            return response()->json($return_data);
+        }
+    }
+
+    public function viewClaimRewardDetail(Request $request, $claim_reward_id) {
+        $claimRewardID = base64_decode($claim_reward_id);
+        $findClaim = ClaimReward::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('(SELECT name from users where users.id = claim_rewards.user_id) AS user_name'), DB::raw('(SELECT reward_name from rewards where rewards.id = claim_rewards.reward_id) AS reward_name'))->whereId($claimRewardID)->with('reward')->first();
+
+        return view('admin.view-claim-records', compact('findClaim'));
+    }
+
+    public function claimRecordListByID(Request $request){
+        $admin = auth()->guard('admin')->user();
+        $encodeUserId = $request->encodeUserId;
+        $userID = base64_decode($encodeUserId);
+        $column = "id";
+        $asc_desc = $request->get("order")[0]['dir'];
+
+        if($asc_desc == "asc"){
+            $asc_desc = "desc";
+        }else{
+            $asc_desc = "asc";
+        }
+
+        $order = $request->get("order")[0]['column'];
+        if($order == 0){
+            $column = "id";
+        }elseif($order == 1){
+            $column = "image";
+        }elseif($order == 2){
+            $column = "reward_name";
+        }elseif($order == 3){
+            $column = "user_name";
+        }else if($order == 4) {
+            $column = "date_show";
+        }
+        
+
+        //all user in superadmin case to show
+        
+
+        
+        $data = ClaimReward::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('(SELECT name from users where users.id = claim_rewards.user_id) AS user_name'), DB::raw('(SELECT reward_name from rewards where rewards.id = claim_rewards.reward_id) AS reward_name'))->whereUserId($userID)->orderBy($column,$asc_desc)->with('reward');
+        
+
+
+        $total = $data->get()->count();
+
+        if(!empty($request->get("search")["value"])){
+            $search = $request->get("search")["value"];
+        }else{
+
+            $search = $request->search_txt;
+        }
+        $filter = $total;
+
+
+        if($search){
+            $data  = $data->where(function($query) use($search){
+                        $query->orWhere(DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
+                        $query->orWhere(DB::raw('(SELECT name from users where users.id = claim_rewards.user_id)'), 'Like', '%' . $search . '%');
+                        $query->orWhere(DB::raw('(SELECT reward_name from rewards where rewards.id = claim_rewards.reward_id)'), 'Like', '%' . $search . '%');
+                    });
+
+            $filter = $data->get()->count();
+
+        }
+
+        $data = $data->offset($request->start);
+        $data = $data->take($request->length);
+        $data = $data->get();
+
+
+        $start_from = $request->start;
+        if($start_from == 0){
+            $start_from  = 1;
+        }
+        if($start_from % 10 == 0){
+            $start_from = $start_from + 1;
+        }
+
+
+        foreach ($data as $k => $row) {
+
+            $btn ="";
+
+            if($row->reward->rewardImages && count($row->reward->rewardImages) > 0) {
+                $row->defaultImage = $row->reward->rewardImages[0]['image'];
+                
+            }else{
+                $row->defaultImage = url('/public/admin/assets/img') . "/" . 'dummy-t.png';
+            }
+
+
+            $btn .= '<a href="claim-reward-list-by-id-view-detail/'.base64_encode($row->id).'/'.base64_encode($userID).'"><button type="button" class="btn btn-warning same_wd_btn mr-2">View</button></a>'; 
+
+            $row->action = $btn;
+
+            $row->DT_RowIndex = $start_from++;
+
+        }
+
+
+        $return_data = [
+                "data" => $data,
+                "draw" => (int)$request->draw,
+                "recordsTotal" => $total,
+                "recordsFiltered" => $filter,
+                "input" => $request->all()
+        ];
+        return response()->json($return_data);
+    }
+
+    public function claimRewardByUserIDViewDetails(Request $request) {
+        $encodeUserID = $request->user_id;
+        $endCodeRewardID = $request->reward_id;
+        $decodeID = base64_decode($request->user_id);
+        $rewardID = base64_decode($request->reward_id);
+        
+        $admin = auth()->guard('admin')->user();
+        if($admin->is_super_admin == 0) {
+            return ['status' => 'failed', 'message' => 'Only Super Admin can be withdraw reward.'];
+        }
+
+        $findClaim = ClaimReward::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('(SELECT name from users where users.id = claim_rewards.user_id) AS user_name'), DB::raw('(SELECT reward_name from rewards where rewards.id = claim_rewards.reward_id) AS reward_name'))->whereId($rewardID)->with('reward')->first();
+
+        return view('admin.view-claim-by-user-id',compact('findClaim', 'encodeUserID', 'endCodeRewardID'));
     }
 
 }

@@ -24,6 +24,11 @@
     cursor: pointer;
 }
 
+.btn-tp {
+    display: flex
+;
+}
+
 .withdraw {
     display: flex;
     margin: 20px 0px 0px 20px;
@@ -36,6 +41,13 @@
 button.btn.btn-withdraw {
     color: #ffffff;
     background-color: green;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+button.btn.btn-withdrawRewardBtn {
+    color: #000000;
+    background-color: #57b4ca;
     font-weight: 600;
     font-size: 16px;
 }
@@ -55,6 +67,32 @@ label.error {
     margin-top: 0px;
 }
 
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    margin-top: 8px;
+}
+
+.select2-container .select2-selection--single {
+    height: 46px;
+}
+
+span#select2-sponser_id-container {
+    padding: .5rem 1rem;
+    position: relative;
+}
+span#select2-upline_id-container {
+    padding: .5rem 1rem;
+    position: relative;
+}
+
+span.select2.select2-container.select2-container--default {
+    width: 100% !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    font-weight: 600;
+    line-height: 44px;
+}
+
 	</style>
 
 		<div class="main-panel dashboard_panel">
@@ -64,6 +102,7 @@ label.error {
 						<nav aria-label="breadcrumb">
 							<ol class="breadcrumb">
 								<li class="breadcrumb-item"><a href="{{route('admin.dashboard')}}"><i class="fas fa-home"></i></a></li>
+								<li class="breadcrumb-item active"><a href="{{route('admin.usersWalletManagement')}}">Users Wallet Management</a></li>
 								<li class="breadcrumb-item remove_hover">Users Wallet Details</li>
 								<!-- <li class="breadcrumb-item active" aria-current="page">Data</li> -->
 							</ol>
@@ -74,12 +113,24 @@ label.error {
                     <h1>User Wallet Details</h1>
 
                     <div class="card">
-
+                      <div class="btn-tp">
                         <div class="withdraw">
                             <a href="javascript:void(0);" id="withdrawBtn">
                               <button type="button" class="btn btn-withdraw">Withdraw Amount</button>
                             </a>
+
+                            
                         </div>
+
+                        <div class="withdraw">
+                            
+
+                            <a href="javascript:void(0);" id="withdrawRewardBtn">
+                              <button type="button" class="btn btn-withdrawRewardBtn">Withdraw Reward</button>
+                            </a>
+
+                        </div>
+                      </div>
 
                         <div class="card-body add_imgae_box">
 
@@ -139,6 +190,21 @@ label.error {
                                             </td>
                                         </tr>
 
+                                        <tr>
+                                            <th>Winnig Rewards</th>
+                                            <td>
+                                                {{$userDetails->winnig_reward}}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Claim Rewards</th>
+                                            <td>
+                                                {{$countClaimRewards}}
+                                            </td>
+                                        </tr>
+
+                                        
 
                                         
 
@@ -183,6 +249,38 @@ label.error {
 
 						</div>
 					</div>
+
+
+
+
+          <h1>Claim listing</h1>
+					<div class="card">
+						<div class="card-body">
+						
+							<div class="serch_icon">
+								<i class="fas fa-search"></i>
+							</div>
+							<div class="table-responsive">
+								<table style="width:100%" id="rewardList" class="table table-bordered table-hover">
+								<thead>
+									<tr>
+									<th>Sr. No.</th>
+                  <th>Image</th>
+                  <th>Reward Name</th>
+									<th>User Name</th>
+									<th>Created At</th>
+									<th>Action</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+								</table>
+							</div>
+
+						</div>
+					</div>
+
+
 				</div>
 			</div>
 		</div>
@@ -277,11 +375,100 @@ label.error {
 </div>
 
 
+
+
+<!-- REWARD MODAL -->
+
+<div id="withDrawRewardModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #57b4ca">
+<!--         <button type="button" class="close" data-dismiss="modal">&times;</button>
+ -->
+ <div class="text-center" style="width: 100%;">       
+  <h4 class="modal-title" style="font-size: 18px; color: #000000; font-weight:600">Withdraw Reward</h4>
+</div>
+      </div>
+      <div class="modal-body">
+
+      <div class="row">
+										<!-- Name Field -->
+          <div class="col-md-12">
+            <label for="withdrawReward" style="font-weight:600;" class="pb-1">Rewards</label>
+            <span class="artisan-star">*</span>
+            <div class="form-group p-0">
+                <select id="reward_id" class="form-control form-group select2" style="padding: .6rem 1rem; position: relative;"  placeholder="Select Reward">
+                  <option value="">Select Reward</option>
+                      
+                  @foreach($rewards as $reward)
+                  
+                  <option value="{{$reward->id}}">{{$reward->reward_name}}</option>
+                  
+                  
+                  @endforeach()
+                      
+                </select>
+              <label id="withdrawReward-error" class="error hidden" for="withdrawReward">Please select reward.</label>
+            </div>
+          </div>
+
+									
+								
+        </div>
+      	
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="submitWithdrawReward" class="btn btn-danger" style="background-color: #57b4ca!important; border-color:#57b4ca!important;     color: #000000;
+    font-weight: 600;" data-bs-dismiss="modal">Withdraw</button>
+        <button type="button" id="cancelBtnReward" class="btn btn-danger" style="background-color: #575962 !important;
+    border-color: #575962 !important; font-weight:600" data-bs-dismiss="modal">Cancel</button>
+      </div>
+
+      
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ALERT MODAL -->
+
+<div id="alertModel" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #57b4ca">
+<!--         <button type="button" class="close" data-dismiss="modal">&times;</button>
+ -->
+ <div class="text-center" style="width: 100%;">       
+  <h4 class="modal-title" style="font-size: 18px; color: #fff;">Alert</h4>
+</div>
+      </div>
+      <div class="modal-body">
+      	<div class="text-center">
+        <p style="font-size: 18px;" id="alert_message"></p>
+    </div>
+      </div>
+	      <div class="modal-footer">
+	      	<button type="button" id="okAlert" class="btn btn-default" data-dismiss="modal">Ok</button>
+	      </div>
+  	
+    </div>
+
+  </div>
+</div>
+
+
 @endsection()
 
 @section('js')
 
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 		
 	<script>
@@ -533,11 +720,21 @@ label.error {
 						setTimeout(() => {
 
               if(res.status == "success") {
-                alert(res.message)
-                window.location.href = ""; 
+               // alert(res.message)
+
+                // $("#alertModel").modal("show");
+                // $("#alert_message").text(res.message);
+                // $("#alertModel").unbind("click");
+                window.location.href="";
+
+                 
               }else{
-                alert(res.message);
-                window.location.href = "";  
+               // alert(res.message);
+
+                $("#alertModel").modal("show");
+                $("#alert_message").text(res.message);
+                $("#alertModel").unbind("click");
+                  
               }
 
 							$("#lodaerModal").modal("hide");
@@ -551,8 +748,12 @@ label.error {
 							$("#lodaerModal").modal("hide");
 						}, 500);
 						var result = data.responseJSON;
-						alert('Something went worng.');
-						window.location.href = "";
+
+            $("#alertModel").modal("show");
+            $("#alert_message").text("Something went wrong");
+            $("#alertModel").unbind("click");
+						//alert('Something went worng.');
+						
 						return false;
 					} 
 					}
@@ -571,6 +772,110 @@ label.error {
         }
       })
 
+
+
+
+      //reward case
+      $('.select2').select2();
+
+      $("#withdrawRewardBtn").on("click", function (){
+
+        $("#withDrawRewardModal").modal({
+          backdrop: 'static', // Prevent closing on outside click
+          keyboard: false     // Optional: Prevent closing on "Escape" key press
+        });
+
+        $("#withDrawRewardModal").modal("show");
+      })
+
+      $("#cancelBtnReward").on("click", function() {
+        $("#withDrawRewardModal").modal("hide");
+      })
+
+      $("#reward_id").on("change", function(){
+        if($(this).val().trim()) {
+          $("#withdrawReward-error").addClass("hidden");
+        }else{
+          $("#withdrawReward-error").removeClass("hidden");
+        }
+      })
+
+      $("#submitWithdrawReward").on("click", function() {
+        let rewardID = $("#reward_id").val();
+        let encodeRewardID = btoa(rewardID);
+
+        if(rewardID) {
+          $("#withdrawReward-error").addClass("hidden");
+        }else{
+          $("#withdrawReward-error").removeClass("hidden");
+          return false;
+        }
+
+        var dataPayload = {
+          '_token': "{{csrf_token()}}",
+          'encodeRewardID': encodeRewardID,
+          'encodeUserId' : "{{$encodeID}}"
+        };
+        $("#lodaerModal").modal("show");
+
+        $.ajax({
+					url: "{{url('admin/reward-claim')}}",
+					type:'POST',
+					data:dataPayload,
+					success: function(res){
+            console.log("TRTTTTTTTTTTTT",res);
+            $("#withDrawRewardModal").modal("hide");
+						
+						setTimeout(() => {
+
+              if(res.status == "success") {
+                //alert(res.message)
+
+                // $("#alertModel").modal("show");
+                // $("#alert_message").text(res.message);
+                // $("#alertModel").unbind("click");
+                window.location.href="";
+
+                 
+              }else{
+                //alert(res.message);
+
+                $("#alertModel").modal("show");
+                $("#alert_message").text(res.message);
+                $("#alertModel").unbind("click");
+
+                  
+              }
+              $("#lodaerModal").modal("hide");
+							$("#withDrawRewardModal").modal("hide");
+						}, 500);
+						
+					},
+					error: function(data, textStatus, xhr) {
+					if(data.status == 422){
+            $("#withDrawRewardModal").modal("hide");
+						setTimeout(() => {
+							$("#lodaerModal").modal("hide");
+						}, 500);
+						var result = data.responseJSON;
+
+            $("#alertModel").modal("show");
+            $("#alert_message").text("Something went wrong");
+            $("#alertModel").unbind("click");
+
+						//alert('Something went worng.');
+						
+						return false;
+					} 
+					}
+				});
+      })
+
+      $("#okAlert").on("click", function() {
+      
+        $("#alertModel").modal("hide"); 
+      })
+
     });
 
     function isNumeric(event) {
@@ -582,6 +887,66 @@ label.error {
     }
 
       </script>
+
+
+
+
+<script>
+  function dataTableHitClaimRewards(dataGET){
+      $("#rewardList").dataTable().fnDestroy();
+      $('#rewardList').dataTable({
+             // /dom: "Bfrtip",
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "{{ route('admin.claimRecordListByID') }}",
+                "type": "POST",
+                "data" : dataGET,
+              complete:function(){
+
+                // if($("#basic-datatables_wrapper").find(".wrap_all").length <= 0){
+
+                //   $('#basic-datatables_info,#basic-datatables_paginate').wrapAll('<div class="wrap_all"></div>'); 
+                // }
+
+              }
+
+            },
+            createdRow: function( row, data, dataIndex ) {
+
+                $( row ).find('td:eq(1)').attr('data-id', data['id']).attr('key_type','defaultImage').addClass('td_click');
+                $( row ).find('td:eq(2)').attr('data-id', data['id']).attr('key_type','reward_name').addClass('td_click').addClass('white_space');
+				$( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','user_name').addClass('td_click').addClass('white_space');
+				
+				$( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
+			},
+            "columns": [
+				{data: 'DT_RowIndex', name: 'DT_RowIndex'},
+				{data: 'defaultImage', name: 'defaultImage', orderable: false, searchable: false, render: function(data, type, row) {
+                return `<img src="${data}" alt="Image" style="width: 50px; height: auto;">`;
+            	}},
+                {data: 'reward_name', name: 'reward_name'},
+				{data: 'user_name', name: 'user_name'},
+				{data: 'date_show', name: 'date_show'},
+				{data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+ 
+        });
+    }
+
+    $(document).ready(function() {
+
+      let data = {
+      '_token': "{{csrf_token()}}",
+      'encodeUserId' : "{{$encodeID}}"
+      }
+
+      dataTableHitClaimRewards(data);
+
+
+
+      });
+</script>
 @endsection()
 
 

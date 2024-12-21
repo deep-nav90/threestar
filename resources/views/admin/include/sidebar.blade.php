@@ -131,6 +131,28 @@
 						@endif()
 						@endif()
 
+						@if(Auth()->guard('admin')->user())
+						@if(Auth()->guard('admin')->user()->is_super_admin == 1)
+						<li class= "nav-item <?php if(Request::is("admin/reward-management") || Request::is("admin/reward-view/*") || Request::is("admin/reward-edit/*") || Request::is("admin/add-reward")) {echo 'nav-item active';} else {echo '';}?>">
+							<a href="{{route('admin.rewardManagement')}}">
+								<i class="fas fa-trophy"></i>
+								<p>Reward Management</p>
+								<!-- <span class="caret"></span> -->
+							</a>
+						</li>
+						@endif()
+						@endif()
+
+
+						<li class= "nav-item <?php if(Request::is("admin/claim-reward-list") || Request::is("admin/claim-reward-view/*")) {echo 'nav-item active';} else {echo '';}?>">
+							<a href="{{route('admin.claimRewardManagement')}}">
+								<i class="fas fa-gift"></i>
+								<p>Claim Reward Management</p>
+								<!-- <span class="caret"></span> -->
+							</a>
+						</li>
+
+
 
 
 						<li class="nav-item <?php if(Request::is("admin/change-password")) {echo 'nav-item active';} else {echo '';}?>">

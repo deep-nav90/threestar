@@ -1,5 +1,5 @@
 @extends('admin.layout.layout')
-@section('title','Users Wallet Management')
+@section('title','Reward Management')
 @section('content')
 
 <style>
@@ -23,6 +23,17 @@
     margin-left: 120px;
     cursor: pointer;
 }
+
+button.btn.btn-warning.same_wd_btn.delete {
+    background-color: #fa3b3b !important;
+    border: #fa3b3b	 !important;
+    padding: 8px 0px 10px;
+    font-size: 15px;
+    letter-spacing: 0.7px;
+    width: 129px;
+    font-weight: 700;
+    height: 47px;
+}
 	</style>
 
 		<div class="main-panel dashboard_panel">
@@ -32,37 +43,35 @@
 						<nav aria-label="breadcrumb">
 							<ol class="breadcrumb">
 								<li class="breadcrumb-item"><a href="{{route('admin.dashboard')}}"><i class="fas fa-home"></i></a></li>
-								<li class="breadcrumb-item remove_hover">Users Wallet Management</li>
+								<li class="breadcrumb-item remove_hover">Reward Management</li>
 								<!-- <li class="breadcrumb-item active" aria-current="page">Data</li> -->
 							</ol>
 						</nav>
 						@include('admin.layout.notification')
 					</div>
-					<h1>Wallet Management</h1>
+					<h1>Reward Management</h1>
 					<div class="card">
 						<div class="card-body">
 							
+							<div class="add_btn">
+								<a href="{{route('admin.addReward')}}">
+									<button type="button" class="btn btn-warning same_wd_btn">Add</button>
+								</a>
+							</div>
 
 							<div class="serch_icon">
 								<i class="fas fa-search"></i>
 							</div>
 							<div class="table-responsive">
-								<table style="width:100%" id="userList" class="table table-bordered table-hover">
+								<table style="width:100%" id="rewardList" class="table table-bordered table-hover">
 								<thead>
 									<tr>
 									<th>Sr. No.</th>
-									<th>User Name</th>
-									<!-- <th>Tree Amount</th>
-									<th>Direct Amount</th> -->
-									<!-- <th>Total Amount</th> -->
-                                    <th>Credit Amount</th>
-									<th>Debit Amount</th>
-                                    <th>Balance Amount</th>
-									<th>Rewards</th>
-									<th>Updated At</th>
-
+									<th>Image</th>
+									<th>Name</th>
+									<th>Level</th>
+									<th>Created At</th>
 									<th>Action</th>
-
 									</tr>
 								</thead>
 								<tbody>
@@ -104,15 +113,15 @@
       </div>
       <div class="modal-body">
       	<div class="text-center">
-        <p style="font-size: 18px;">Are you sure you want to delete this user?</p>
+        <p style="font-size: 18px;">Are you sure you want to delete this reward?</p>
     </div>
       </div>
-      <form method="POST" action="{{route('admin.deleteUser')}}" id="deleteForm">
+      <form method="POST" action="{{route('admin.deleteReward')}}" id="deleteForm">
       	{{@csrf_field()}}
-      	<input type="hidden" name="user_id" id="user_id">
+      	<input type="hidden" name="reward_id" id="reward_id">
 	      <div class="modal-footer">
 	      	<button type="button" id="ok" class="btn btn-default" data-dismiss="modal">Ok</button>
-	        <button type="button" id="cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	        <button type="button" id="cancel" style="background: #686e86 !important;" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
   	</form>
     </div>
@@ -211,9 +220,9 @@
 
 			$(document).on("click",".delete",function(){
 
-				let user_id = $(this).attr("ui");
+				let reward_id = $(this).attr("ui");
 				$("#myModal").modal("show");
-				$("#user_id").val(user_id);
+				$("#reward_id").val(reward_id);
 				$("#myModal").unbind("click");
 			});
 
@@ -223,8 +232,8 @@
 			});
 
 			$("#ok").on("click",function(){
-        $("#myModal").modal("hide");
-				//$("#deleteForm").submit();
+        		$("#myModal").modal("hide");
+				$("#deleteForm").submit();
 			});
 		});
 	</script>
@@ -233,14 +242,14 @@
 
 <script type="text/javascript">
 
-    function dataTableHit(dataGET){
-      $("#userList").dataTable().fnDestroy();
-      $('#userList').dataTable({
+function dataTableHit(dataGET){
+      $("#rewardList").dataTable().fnDestroy();
+      $('#rewardList').dataTable({
              // /dom: "Bfrtip",
             "processing": true,
             "serverSide": true,
             "ajax": {
-                "url": "{{ route('admin.usersWalletManagement') }}",
+                "url": "{{ route('admin.rewardManagement') }}",
                 "type": "POST",
                 "data" : dataGET,
               complete:function(){
@@ -255,95 +264,41 @@
             },
             createdRow: function( row, data, dataIndex ) {
 
-              $( row ).find('td:eq(1)').attr('data-id', data['id']).attr('key_type','user_name_with_id').addClass('td_click').addClass('white_space');
-              $( row ).find('td:eq(2)').attr('data-id', data['id']).attr('key_type','tree_amount').addClass('td_click').addClass('white_space');
-              $( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','direct_amount').addClass('td_click');
-              //$( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_in_rupees').addClass('td_click');
-              $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_credit').addClass('td_click');
-			  $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','total_debit_amount').addClass('td_click');
-			  $( row ).find('td:eq(6)').attr('data-id', data['id']).attr('key_type','show_balance_amount').addClass('td_click');
-              $( row ).find('td:eq(7)').attr('data-id', data['id']).attr('key_type','winnig_reward').addClass('td_click');
-			  $( row ).find('td:eq(8)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
+				$( row ).find('td:eq(1)').attr('data-id', data['id']).attr('key_type','image').addClass('td_click').addClass('white_space');
+				$( row ).find('td:eq(2)').attr('data-id', data['id']).attr('key_type','reward_name').addClass('td_click').addClass('white_space');
+				$( row ).find('td:eq(3)').attr('data-id', data['id']).attr('key_type','reward_level').addClass('td_click');
+				$( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
 			},
             "columns": [
-              {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-              {data: 'user_name_with_id', name: 'user_name_with_id'},
-            //   {data: 'tree_amount', name: 'tree_amount'},
-            //   {data: 'direct_amount', name: 'direct_amount'},
-              {data: 'total_amount_credit', name: 'total_amount_credit'},
-			  {data: 'total_debit_amount', name: 'total_debit_amount'},
-              //{data: 'total_amount_in_rupees', name: 'total_amount_in_rupees'},
-			  {data: 'show_balance_amount', name: 'show_balance_amount'},
-			  {data: 'winnig_reward', name: 'winnig_reward'},
-              {data: 'date_show', name: 'date_show'},
-              {data: 'action', name: 'action', orderable: false, searchable: false},
+				{data: 'DT_RowIndex', name: 'DT_RowIndex'},
+				{data: 'defaultImage', name: 'defaultImage', orderable: false, searchable: false, render: function(data, type, row) {
+                return `<img src="${data}" alt="Image" style="width: 50px; height: auto;">`;
+            	}},
+				{data: 'reward_name', name: 'reward_name'},
+				{data: 'reward_level', name: 'reward_level'},
+				{data: 'date_show', name: 'date_show'},
+				{data: 'action', name: 'action', orderable: false, searchable: false},
             ],
  
         });
     }
 
     $(document).ready(function() {
-  
-          let user_status = $("#user_status").val();
-          let user_type = $("#user_type").val();
 
-          let data = {
-            '_token': "{{csrf_token()}}",
-            'user_status' : user_status,
-            'user_type' : user_type
-          }
+		let data = {
+		'_token': "{{csrf_token()}}",
+		}
 
-          dataTableHit(data);
+		dataTableHit(data);
 
-
-          $(".apply-filter").on("click",function(){
-
-            let __user_status = $("#user_status").val();
-            let __user_type= $("#user_type").val();
-
-            let __data = {
-              '_token': "{{csrf_token()}}",
-              'user_status' : __user_status,
-              'user_type' : __user_type
-            }
-
-            
-            dataTableHit(__data);
-
-          });
-
-          $(".reset-button").on("click",function(){
-
-            $("#user_status").val("");
-            $("#user_type").val("");
-
-            let ____user_status = $("#user_status").val();
-            let ____user_type = $("#user_type").val();
-
-            let ____data = {
-              '_token': "{{csrf_token()}}",
-              'user_status' : ____user_status,
-              'user_type' : ____user_type
-            }
-
-            
-            dataTableHit(____data);
-
-          });
-
-
-
-
-      
-
-    $(document).on('click','.show-user-advance-options',function(e){
-        e.preventDefault();
-        $('.advance-options-user').slideToggle();
-      });
+		$(document).on('click','.show-user-advance-options',function(e){
+			e.preventDefault();
+			$('.advance-options-user').slideToggle();
+		});
 
 
     });
-      </script>
+</script>
 @endsection()
 
 
