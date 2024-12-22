@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Auth;
-
+use Session;
 class LoginAuthenticateSecurity
 {
     /**
@@ -18,6 +18,12 @@ class LoginAuthenticateSecurity
     {
         
         if(!Auth::guard($guard)->check()) { //error
+            return redirect(route('admin.login'));
+        }
+       // dd(Auth::guard($guard)->user());
+        if(Auth::guard($guard)->user()->is_block == 1) {
+            Session::flush();
+            Session::flash('danger', "Your account has been blocked by Admin.");
             return redirect(route('admin.login'));
         }
 

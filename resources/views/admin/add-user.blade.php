@@ -166,7 +166,7 @@ span#select2-upline_id-container {
 											<label for="name" class="pb-1">Name</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter Name" name="name" />
+												<input type="text" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" class="form-control" placeholder="Enter Name" name="name" />
 												@if($errors->first('name'))
 													<span class="text-danger error">{{$errors->first('name')}}</span>
 												@endif
@@ -219,7 +219,7 @@ span#select2-upline_id-container {
 												</div>
 
 												<!-- Input Field -->
-												<input type="text" class="form-control" id="swd_name" name="swd_name" placeholder="Enter Name" />
+												<input type="text" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" class="form-control" id="swd_name" name="swd_name" placeholder="Enter Relation Name" />
 											</div>
 											<!-- Validation Error -->
 											@if($errors->first('swd_name'))
@@ -241,7 +241,7 @@ span#select2-upline_id-container {
 										<div class="col-md-6">
 											<label for="nomination_name" class="pb-1">Nomination Name</label>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter Nomination Name" name="nomination_name" />
+												<input type="text" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" class="form-control" placeholder="Enter Nomination Name" name="nomination_name" />
 												@if($errors->first('nomination_name'))
 													<span class="text-danger error">{{$errors->first('nomination_name')}}</span>
 												@endif
@@ -822,8 +822,15 @@ span#select2-upline_id-container {
 					data:dataPayload,
 					success: function(res){
 						let options = `<option value="">Select Upline ID</option>`;
+						let __disabledUserIds = @json($disabledUserIds);
+						
 						for(let k=0; k < res.length; k++) {
-							options += `<option value="`+res[k]+`">`+res[k]+`</option>`
+							if(__disabledUserIds.includes(res[k])) {
+								options += `<option disabled value="`+res[k]+`">`+res[k]+`</option>`;
+							}else{
+								options += `<option value="`+res[k]+`">`+res[k]+`</option>`;
+							}
+							
 						}
 
 						$("#upline_id").html(options);

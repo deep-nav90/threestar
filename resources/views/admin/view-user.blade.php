@@ -69,7 +69,15 @@
 										<tr>
 											<th>Relaton Type</th>
 											<td>
+												@if($userDetails->s_w_d == "Son Off")
+												Sun Of
+												@elseif($userDetails->s_w_d == "Wife Off")
+												Wife Of
+												@elseif($userDetails->s_w_d == "Daughter Off")
+												Daughter Of
+												@else
 												{{$userDetails->s_w_d}}
+												@endif()
 											</td>
 										</tr>
 
@@ -194,7 +202,7 @@
 										<tr>
 											<th>Amount Added</th>
 											<td>
-												{{($userDetails->sponserDetails->amount / 100) . ' (INR)' ?? "N/A"}}
+												{{($userDetails->sponserDetails->amount / 100) . ' (BV)' ?? "N/A"}}
 											</td>
 										</tr>
 

@@ -132,6 +132,9 @@ textarea.form-control {
 								
 							</ol>
 						</nav>
+
+						@include('admin.layout.notification')
+
 					</div>
 					<h1>Add Reward</h1>
 					<div class="card">
@@ -206,8 +209,11 @@ textarea.form-control {
                                             
                                         @foreach($levels as $level)
                                         
-                                        <option value="{{$level->level}}">{{$level->level}}</option>
-                                        
+										@if(in_array($level->level, $disabledLevels))
+                                        <option disabled value="{{$level->level}}">{{$level->level}}</option>
+                                        @else
+										<option value="{{$level->level}}">{{$level->level}}</option>
+										@endif()
                                         
                                         @endforeach()
                                             
@@ -342,7 +348,7 @@ textarea.form-control {
                 
 
                 if( (image_count == "" || image_count == 0)){
-                	validate = true;
+                	//validate = true;
                 }
 
                 if(validate == true){

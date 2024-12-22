@@ -88,7 +88,7 @@ Route::group(['middleware'=>['loginAuthenticate'], 'namespace' => 'Admin','prefi
     Route::get('users-wallet-view/claim-reward-list-by-id-view-detail/{user_id}/{reward_id}',[UserController::class, 'claimRewardByUserIDViewDetails'])->name('claimRewardByUserIDViewDetails');
 
     Route::post('delete-user','UserController@deleteUser')->name('deleteUser');
-    Route::post('block-user','UserController@blockUser')->name('blockUser');
+    Route::post('block-user',[UserController::class, 'blockUser'])->name('blockUser');
 
 
     

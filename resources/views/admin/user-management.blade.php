@@ -382,59 +382,45 @@
           
 
 
-          swal({
-            title: "Are you sure?",
-            text: "Are you sure you want to "+actionFor+" this user?",
-            type: "warning",
-            showCancelButton: true,
-          }, function(willDelete) {
-            if (willDelete) {
-              $.ajax({
-                url: "{{ route('admin.blockUser')}}",
-                type: 'post',
-                data: {
-                  id: dataID
-                },
-                dataType: "JSON",
-                headers: {
-                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                  if(response.success == 1) {
-
-                    let msg = "";
-                    if(actionFor == "Block"){
-                      $(".blockUnblock[title='Unblock']").removeAttr("hidden");
-                      $(".blockUnblock[title='Block']").attr("hidden","true");
-                      msg = "User has been blocked succesfully.";
-                    }else{
-                      $(".blockUnblock[title='Block']").removeAttr("hidden");
-                      $(".blockUnblock[title='Unblock']").attr("hidden","true");
-                      msg = "User has been Unblocked succesfully.";
-                    }
-
-                    setTimeout(() => {
-                      $(".lodaerModal").modal("hide");
-                    }, 300);
-                    swal({
-                        title: "Information",
-                        text: msg,
-                        type: "success",
-                        showCancelButton: false,
-                    }, function(willDelete) {
-                       
-                    });
-                  }
-                  else {
-                    console.log("FALSE");
-                    setTimeout(() => {
-                    alert("Something went wrong! Please try again.");
-                    }, 500);
-                  }
-                }
-              });
-            } 
+          Swal.fire({
+              title: "Are you sure?",
+              text: "Are you sure you want to " + actionFor + " this user?",
+              icon: "warning",
+              showCancelButton: true,
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  $.ajax({
+                      url: "{{ route('admin.blockUser') }}",
+                      type: 'post',
+                      data: {
+                          id: dataID
+                      },
+                      dataType: "JSON",
+                      headers: {
+                          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                      },
+                      success: function(response) {
+                          if (response.success == 1) {
+                              let msg = "";
+                              if (actionFor === "Block") {
+                                  $(".blockUnblock[title='Unblock'][data-id='"+dataID+"']").removeAttr("hidden");
+                                  $(".blockUnblock[title='Block'][data-id='"+dataID+"']").attr("hidden", "true");
+                                  msg = "User has been blocked successfully.";
+                              } else {
+                                  $(".blockUnblock[title='Block'][data-id='"+dataID+"']").removeAttr("hidden");
+                                  $(".blockUnblock[title='Unblock'][data-id='"+dataID+"']").attr("hidden", "true");
+                                  msg = "User has been unblocked successfully.";
+                              }
+                              Swal.fire("Information", msg, "success");
+                          } else {
+                              console.log("FALSE");
+                              alert("Something went wrong! Please try again.");
+                          }
+                      }
+                  });
+              }
           });
+
 
 
         })

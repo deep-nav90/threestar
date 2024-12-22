@@ -103,7 +103,10 @@
 	<script src="{{url('public/admin/assets/js/plugin/jqvmap/maps/jquery.vmap.world.js')}}"></script>
 
 	<!-- Sweet Alert -->
-	<script src="{{url('public/admin/assets/js/plugin/sweetalert/sweetalert.min.js')}}"></script>
+	<!-- <script src="{{url('public/admin/assets/js/plugin/sweetalert/sweetalert.min.js')}}"></script> -->
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 	<!-- Atlantis JS -->
 	<script src="{{url('public/admin/assets/js/atlantis.min.js')}}"></script>

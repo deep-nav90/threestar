@@ -119,7 +119,7 @@ class UserController extends ResponseController
 
     function formatToIndianRupees($amountInPaisa) {
         // Convert paisa to rupees
-        return $amountInRupees = '(INR) ' . $amountInPaisa / 100;
+        return $amountInRupees = '(BV) ' . $amountInPaisa / 100;
 
         // Format to human-readable format
         if ($amountInRupees >= 10000000) {
@@ -243,8 +243,15 @@ class UserController extends ResponseController
                     $block_show = "hidden";
                     $unblock_show = "";
                 }
-                $btn .= '<a class="action-button blockUnblock" title="Block" data-id="'.$row->id.'" '.$block_show.' href="javascript:void(0);"><button type="button" class="btn btn-warning same_wd_btn border_btn mr-2">Block</button></a>';
-                $btn .= '<a class="action-button blockUnblock" title="Unblock" data-id="'.$row->id.'" '.$unblock_show.' href="javascript:void(0<button type="button" class="btn btn-warning same_wd_btn border_btn mr-2">Unblock</button></a>';
+
+                if($admin->is_super_admin == 1) {
+                    $btn .= '<a class="action-button blockUnblock" title="Block" data-id="'.$row->id.'" '.$block_show.' href="javascript:void(0);"><button type="button" class="btn btn-warning same_wd_btn border_btn mr-2">Block</button></a>';
+
+                    $btn .= '<a class="action-button blockUnblock" title="Unblock" data-id="'.$row->id.'" '.$unblock_show.' href="javascript:void(0);"><button type="button" class="btn btn-warning same_wd_btn border_btn mr-2">Unblock</button></a>';
+                }
+               
+
+                // $btn .= '<a class="action-button blockUnblock" title="Unblock" data-id="'.$row->id.'" '.$unblock_show.' href="javascript:void(0<button type="button" class="btn btn-warning same_wd_btn border_btn mr-2">Unblock</button></a>';
 
                 
 
@@ -430,12 +437,6 @@ class UserController extends ResponseController
             $userLevel = $user->user_level;
             $checkLevel = $userLevel + 1;
 
-            $winnigReward = 0;
-
-            if($checkLevel >= 3) {
-                $winnigReward = (int)$user->winnig_reward + 1;
-            }
-
             $levelRecordArray = Arr::first($levelsTable, function ($item) use ($checkLevel) {
                 return $item['level'] === $checkLevel;
             });
@@ -449,7 +450,7 @@ class UserController extends ResponseController
                 $case1 = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ?", ["(,|^)$user->id$"])->get();
 
                 if(count($case1) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }
             }else if($checkLevel == 2) {
                 $case2 = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", 1])->get();
@@ -460,7 +461,7 @@ class UserController extends ResponseController
                 // ->get();
 
                 if(count($case2) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -494,7 +495,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 3) {
@@ -502,7 +503,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -536,7 +537,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 4) {
@@ -544,7 +545,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -578,7 +579,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 5) {
@@ -586,7 +587,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -620,7 +621,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 6) {
@@ -628,7 +629,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -662,7 +663,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 7) {
@@ -670,7 +671,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -704,7 +705,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 8) {
@@ -712,7 +713,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -746,7 +747,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 9) {
@@ -754,7 +755,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -788,7 +789,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 10) {
@@ -796,7 +797,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -830,7 +831,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 11) {
@@ -838,7 +839,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -872,7 +873,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 12) {
@@ -880,7 +881,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -914,7 +915,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }else if($checkLevel == 13) {
@@ -922,7 +923,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -956,7 +957,7 @@ class UserController extends ResponseController
                     $totalCount = count($finalUniqueIds);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $winnigReward]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
                     }
                 }
             }
@@ -1011,8 +1012,15 @@ class UserController extends ResponseController
             //     $addBalAmtCalculate = $staticSponserAmount + $addBalAmtCalculate;
             // }
 
+
+            $winnigReward = 0;
+
+            if($checkLevel >= 3) {
+                $winnigReward = (int)$user->winnig_reward + 1;
+            }
+
             $addBalance = $user->balance_amount + $addBalAmtCalculate;
-            User::whereId($user->id)->update(['balance_amount' => $addBalance]);
+            User::whereId($user->id)->update(['balance_amount' => $addBalance, 'winnig_reward' => $winnigReward]);
             $k--;
             
         }
@@ -1259,9 +1267,9 @@ class UserController extends ResponseController
             
 
             if($admin->is_super_admin == 0) {
-                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
+                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
             }else{
-                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
+                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
             }
 
 
@@ -1281,10 +1289,10 @@ class UserController extends ResponseController
                             $query->orWhere(DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")")'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")")'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2))'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2))'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2))'), 'Like', '%' . $search . '%');
                         });
 
                 $filter = $data->get()->count();
@@ -1342,7 +1350,7 @@ class UserController extends ResponseController
 
     public function viewWalletDetails(Request $request, $wallet_id) {
         $walletID = base64_decode($wallet_id);
-        $walletDetails = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereId($walletID)->first();
+        $walletDetails = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereId($walletID)->first();
 
         return view('admin.view-wallet', compact('walletDetails'));
     }
@@ -1385,7 +1393,7 @@ class UserController extends ResponseController
             }else if($order == 4) {
                 $column = "show_balance_amount";
             }else if($order == 5) {
-                $column = "winnig_reward";
+                $column = "show_pending_claim";
             }else if($order == 6) {
                 $column = "updated_date_show";
             }
@@ -1395,7 +1403,7 @@ class UserController extends ResponseController
             
 
             
-            $data = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_debit_amount'))->whereDeletedAt(null)->orderBy($column,$asc_desc);
+            $data = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(BV) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS total_debit_amount'), DB::raw('ROUND(winnig_reward - (SELECT COUNT(*) FROM claim_rewards WHERE claim_rewards.user_id = users.id), 2) AS show_pending_claim'))->whereDeletedAt(null)->orderBy($column,$asc_desc);
             
 
 
@@ -1417,16 +1425,16 @@ class UserController extends ResponseController
 
                             
 
-                            // $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
+                            // $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END'), 'Like', '%' . $search . '%');
 
-                            // $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
+                            // $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END'), 'Like', '%' . $search . '%');
 
-                             $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                             $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(users.balance_amount / 100, 2))'), 'Like', '%' . $search . '%');
 
-                            $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END'), 'Like', '%' . $search . '%');
 
-                            $query->orWhere('winnig_reward', 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('ROUND(winnig_reward - (SELECT COUNT(*) FROM claim_rewards WHERE claim_rewards.user_id = users.id), 2)'), 'Like', '%' . $search . '%');
 
                         });
 
@@ -1485,12 +1493,17 @@ class UserController extends ResponseController
                 return redirect(route('admin.dashboard'));
             }
 
-            $countClaimRewards = ClaimReward::whereDeletedAt(null)->whereUserId($userID)->count();
-
-            $rewards = Reward::whereDeletedAt(null)->whereRewardLevel($admin->user_level)->with('rewardImages')->get();
-            
+            $countClaimRewards = ClaimReward::whereDeletedAt(null)->whereUserId($userID)->count();        
             $encodeID = $user_id;
-            $userDetails = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(INR) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(INR)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(INR)", " ", 0) END AS total_debit_amount'))->whereId($userID)->first();
+            $userDetails = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(BV) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS total_debit_amount'), DB::raw('ROUND(winnig_reward - (SELECT COUNT(*) FROM claim_rewards WHERE claim_rewards.user_id = users.id), 2) AS show_pending_claim'))->whereId($userID)->first();
+
+
+            if($userDetails->show_pending_claim > 0) {
+                $rewards = Reward::whereDeletedAt(null)->whereRewardLevel($admin->user_level)->with('rewardImages')->get();
+            }else{
+                $rewards = [];
+            }
+
             return view('admin.view-user-wallet-details', compact('admin', 'userID', 'encodeID', 'userDetails', 'rewards', 'countClaimRewards'));
         }
 
@@ -1528,7 +1541,7 @@ class UserController extends ResponseController
             
 
            
-            $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $userID)->orderBy($column,$asc_desc);
+            $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $userID)->orderBy($column,$asc_desc);
             
 
 
@@ -1548,10 +1561,10 @@ class UserController extends ResponseController
                             $query->orWhere(DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")")'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")")'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(INR)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.total_amount / 100, 2))'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.credit_user_amount / 100, 2))'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CONCAT("(INR) ", ROUND(wallets.debit_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2))'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2))'), 'Like', '%' . $search . '%');
                         });
 
                 $filter = $data->get()->count();
@@ -1795,12 +1808,20 @@ class UserController extends ResponseController
             }
 
             $levels = Level::whereDeletedAt(null)->get();
+            $disabledLevels = Reward::whereDeletedAt(null)->pluck('reward_level')->toArray();
 
-            return view('admin.add-reward', compact('levels'));
+            return view('admin.add-reward', compact('levels', 'disabledLevels'));
         }
 
         if($request->isMethod('POST')) {
             $data = $request->all();
+
+            $findAddedReward = Reward::whereDeletedAt(null)->whereRewardLevel($data['reward_level'])->first();
+
+            if($findAddedReward) {
+                Session::flash('danger', 'Reward already exists with same level. Please try with another level.');
+                return redirect()->back();
+            }
 
             $saveReward = new Reward();
             $saveReward->reward_name = $data['reward_name'];
@@ -1811,7 +1832,11 @@ class UserController extends ResponseController
             $acceptable_files = array_filter($data['acceptable']);
             $non_acceptable_files = array_filter($data['non_acceptable']);
 
-            $explode_accepted_files = explode(',', $acceptable_files[0]);
+            $explode_accepted_files = [];
+            if(isset($acceptable_files[0])) {
+                $explode_accepted_files = explode(',', $acceptable_files[0]);
+            }
+            
 
             if(isset($non_acceptable_files[0]) && !empty($non_acceptable_files[0])){
 
@@ -1875,14 +1900,24 @@ class UserController extends ResponseController
 
             $image_count = RewardImage::whereRewardId($rewardID)->count();
 
+            $disabledLevels = Reward::whereDeletedAt(null)->where('id','!=', $rewardID)->pluck('reward_level')->toArray();
 
-            return view('admin.edit-reward', compact('levels', 'findReward', 'rewardID', 'reward_id', 'image_count'));
+
+            return view('admin.edit-reward', compact('levels', 'findReward', 'rewardID', 'reward_id', 'image_count', 'disabledLevels'));
         }
 
         if($request->isMethod('POST')) {
            // return $request->all();
             $rewardID = base64_decode($reward_id);
             $findReward = Reward::whereId($rewardID)->with('rewardImages')->first();
+
+
+            $findAddedReward = Reward::whereDeletedAt(null)->whereRewardLevel($request->reward_level)->where('id', '!=', $findReward->id)->first();
+
+            if($findAddedReward) {
+                Session::flash('danger', 'Reward already exists with same level. Please try with another level.');
+                return redirect()->back();
+            }
 
             $findReward->reward_name = $request->reward_name;
             $findReward->reward_level = $request->reward_level;
@@ -2243,6 +2278,20 @@ class UserController extends ResponseController
         $findClaim = ClaimReward::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('(SELECT name from users where users.id = claim_rewards.user_id) AS user_name'), DB::raw('(SELECT reward_name from rewards where rewards.id = claim_rewards.reward_id) AS reward_name'))->whereId($rewardID)->with('reward')->first();
 
         return view('admin.view-claim-by-user-id',compact('findClaim', 'encodeUserID', 'endCodeRewardID'));
+    }
+
+    public function blockUser(Request $request) {
+        $user_id = $request->id;
+        $findUser = User::whereId($user_id)->first();
+        if($findUser->is_block == 0) {
+            $findUser->is_block = 1;
+        }else{
+            $findUser->is_block = 0;
+        }
+
+        $findUser->update();
+
+        return ['success' => 1];
     }
 
 }

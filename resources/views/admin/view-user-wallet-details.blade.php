@@ -204,6 +204,13 @@ span.select2.select2-container.select2-container--default {
                                             </td>
                                         </tr>
 
+                                        <tr>
+                                            <th>Pending Rewards</th>
+                                            <td>
+                                                {{$userDetails->show_pending_claim}}
+                                            </td>
+                                        </tr>
+
                                         
 
                                         
@@ -703,6 +710,11 @@ span.select2.select2-container.select2-container--default {
           return false;
         }
 
+        if(parseFloat($('#amount').val()) <= 0) {
+          alert("Amount should be greater than 0.");
+          return false;
+        }
+
         var dataPayload = {
           '_token': "{{csrf_token()}}",
           'encodeID': "{{$encodeID}}",
@@ -779,6 +791,15 @@ span.select2.select2-container.select2-container--default {
       $('.select2').select2();
 
       $("#withdrawRewardBtn").on("click", function (){
+
+        let pendingReward = "{{$userDetails->show_pending_claim}}";
+        
+        if(parseInt(pendingReward) <= 0) {
+          $("#alertModel").modal("show");
+          $("#alert_message").text("You have no rewards.");
+          $("#alertModel").unbind("click");
+          return false;
+        }
 
         $("#withDrawRewardModal").modal({
           backdrop: 'static', // Prevent closing on outside click

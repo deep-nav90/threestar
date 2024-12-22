@@ -262,7 +262,7 @@
               $( row ).find('td:eq(4)').attr('data-id', data['id']).attr('key_type','total_amount_credit').addClass('td_click');
 			  $( row ).find('td:eq(5)').attr('data-id', data['id']).attr('key_type','total_debit_amount').addClass('td_click');
 			  $( row ).find('td:eq(6)').attr('data-id', data['id']).attr('key_type','show_balance_amount').addClass('td_click');
-              $( row ).find('td:eq(7)').attr('data-id', data['id']).attr('key_type','winnig_reward').addClass('td_click');
+              $( row ).find('td:eq(7)').attr('data-id', data['id']).attr('key_type','show_pending_claim').addClass('td_click');
 			  $( row ).find('td:eq(8)').attr('data-id', data['id']).attr('key_type','date_show').addClass('td_click');
 			},
             "columns": [
@@ -274,7 +274,7 @@
 			  {data: 'total_debit_amount', name: 'total_debit_amount'},
               //{data: 'total_amount_in_rupees', name: 'total_amount_in_rupees'},
 			  {data: 'show_balance_amount', name: 'show_balance_amount'},
-			  {data: 'winnig_reward', name: 'winnig_reward'},
+			  {data: 'show_pending_claim', name: 'show_pending_claim'},
               {data: 'date_show', name: 'date_show'},
               {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
