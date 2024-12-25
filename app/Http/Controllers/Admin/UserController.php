@@ -73,9 +73,14 @@ class UserController extends ResponseController
             return redirect(route('admin.login'));
         }
 
-        $underTakeUsersIds = UnderTakeUser::whereDeletedAt(null)->whereSponserId($admin->id)->pluck('user_id');
-        $underTakeUsersIds2 = UnderTakeUser::whereDeletedAt(null)->whereUplineId($admin->id)->pluck('user_id');
-        $mergeIds = collect($underTakeUsersIds)->merge($underTakeUsersIds2);
+        $underTakeUsersIds = UnderTakeUser::where(function ($query) use ($admin) {
+            $query->where('sequece_wise_user_added_record_ids', 'like', "%,$admin->id,%") 
+                ->orWhere('sequece_wise_user_added_record_ids', 'like', "$admin->id,%") 
+                ->orWhere('sequece_wise_user_added_record_ids', 'like', "%,$admin->id") 
+                ->orWhere('sequece_wise_user_added_record_ids', '=', "$admin->id"); 
+            })->whereNull('deleted_at') // Ensures 'deleted_at' is null
+            ->pluck('user_id');
+        $mergeIds = $underTakeUsersIds;
 
         $totalUsers = User::whereDeletedAt(null)->whereIn('id', $mergeIds)->where('id', '!=', $admin->id)->count();
 
@@ -177,9 +182,14 @@ class UserController extends ResponseController
             $data = User::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('(CASE WHEN is_block = 0 THEN "Unblock" ELSE "Block" END) AS is_block'), DB::raw('DATE_FORMAT(dob, "%d-%M-%Y") AS dob_show'), DB::raw('CONCAT(country_code, " ", mobile_number) AS complete_mobile_number'))->whereDeletedAt(null)->where('id', '!=', $admin->id)->orderBy($column,$asc_desc);
 
             if($admin->is_super_admin == 0) {
-                $underTakeUsersIds = UnderTakeUser::whereDeletedAt(null)->whereSponserId($admin->id)->pluck('user_id');
-                $underTakeUsersIds2 = UnderTakeUser::whereDeletedAt(null)->whereUplineId($admin->id)->pluck('user_id');
-                $mergeIds = collect($underTakeUsersIds)->merge($underTakeUsersIds2);
+                $underTakeUsersIds = UnderTakeUser::where(function ($query) use ($admin) {
+                    $query->where('sequece_wise_user_added_record_ids', 'like', "%,$admin->id,%") 
+                        ->orWhere('sequece_wise_user_added_record_ids', 'like', "$admin->id,%") 
+                        ->orWhere('sequece_wise_user_added_record_ids', 'like', "%,$admin->id") 
+                        ->orWhere('sequece_wise_user_added_record_ids', '=', "$admin->id"); 
+                    })->whereNull('deleted_at') // Ensures 'deleted_at' is null
+                    ->pluck('user_id');
+                $mergeIds = $underTakeUsersIds;
                 $data = User::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('(CASE WHEN is_block = 0 THEN "Unblock" ELSE "Block" END) AS is_block'), DB::raw('DATE_FORMAT(dob, "%d-%M-%Y") AS dob_show'), DB::raw('CONCAT(country_code, " ", mobile_number) AS complete_mobile_number'))->whereDeletedAt(null)->whereIn('id', $mergeIds)->where('id', '!=', $admin->id)->orderBy($column,$asc_desc);
             }
 
@@ -301,9 +311,14 @@ class UserController extends ResponseController
             }
 
             if($admin->is_super_admin == 0) {
-                $underTakeUsersIds = UnderTakeUser::whereDeletedAt(null)->whereSponserId($admin->id)->pluck('user_id');
-                $underTakeUsersIds2 = UnderTakeUser::whereDeletedAt(null)->whereUplineId($admin->id)->pluck('user_id');
-                $mergeIds = collect($underTakeUsersIds)->merge($underTakeUsersIds2);
+                $underTakeUsersIds = UnderTakeUser::where(function ($query) use ($admin) {
+                    $query->where('sequece_wise_user_added_record_ids', 'like', "%,$admin->id,%") 
+                        ->orWhere('sequece_wise_user_added_record_ids', 'like', "$admin->id,%") 
+                        ->orWhere('sequece_wise_user_added_record_ids', 'like', "%,$admin->id") 
+                        ->orWhere('sequece_wise_user_added_record_ids', '=', "$admin->id"); 
+                    })->whereNull('deleted_at') // Ensures 'deleted_at' is null
+                    ->pluck('user_id');
+                $mergeIds = $underTakeUsersIds;
 
                 $allUserIds = User::select('*', DB::raw('CONCAT(custom_user_id, " (", name, ")") AS show_custom_user_id'))->whereDeletedAt(null)->whereIsBlock(0)
                                 ->where(function($query) use($mergeIds) {
@@ -1648,10 +1663,14 @@ class UserController extends ResponseController
     public function getUserBySponser(Request $request, $customUserID) {
       //  return $customUserID;
         $findUser = User::whereCustomUserId($customUserID)->first();
-
-        $underTakeUsersIds = UnderTakeUser::whereDeletedAt(null)->whereSponserId($findUser->id)->pluck('user_id');
-        $underTakeUsersIds2 = UnderTakeUser::whereDeletedAt(null)->whereUplineId($findUser->id)->pluck('user_id');
-        $mergeIds = collect($underTakeUsersIds)->merge($underTakeUsersIds2);
+        $underTakeUsersIds = UnderTakeUser::where(function ($query) use ($findUser) {
+            $query->where('sequece_wise_user_added_record_ids', 'like', "%,$findUser->id,%") 
+                ->orWhere('sequece_wise_user_added_record_ids', 'like', "$findUser->id,%") 
+                ->orWhere('sequece_wise_user_added_record_ids', 'like', "%,$findUser->id") 
+                ->orWhere('sequece_wise_user_added_record_ids', '=', "$findUser->id"); 
+            })->whereNull('deleted_at') // Ensures 'deleted_at' is null
+            ->pluck('user_id');
+        $mergeIds = $underTakeUsersIds;
         
         if($findUser->is_super_admin == 0) {
             $allUserIds = User::select('*', DB::raw('CONCAT(custom_user_id, " (", name, ")") AS show_custom_user_id'))->whereDeletedAt(null)->whereIsBlock(0)
