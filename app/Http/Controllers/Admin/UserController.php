@@ -284,6 +284,15 @@ class UserController extends ResponseController
 
     public function addUser(Request $request) {
         if($request->isMethod('GET')) {
+            // $matchID = 107;
+
+            // $count = UnderTakeUser::where(function ($query) use ($matchID) {
+            //     $query->where('sequece_wise_user_added_record_ids', 'like', "%,$matchID,%") // Matches if $matchID is in the middle
+            //         ->orWhere('sequece_wise_user_added_record_ids', 'like', "$matchID,%") // Matches if $matchID is at the start
+            //         ->orWhere('sequece_wise_user_added_record_ids', 'like', "%,$matchID") // Matches if $matchID is at the end
+            //         ->orWhere('sequece_wise_user_added_record_ids', '=', "$matchID"); // Matches if $matchID is the only value
+            // })->whereNull('deleted_at') // Ensures 'deleted_at' is null
+            // ->count();
 
             //return $this->calculateLevelAndAmount("1,62,69,70,71", 1, 71, 2000,null);
             $admin = auth()->guard('admin')->user();
@@ -452,13 +461,26 @@ class UserController extends ResponseController
                 if(count($case1) >= $levelRecord['number_of_users']) {
                     User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }
-            }else if($checkLevel == 2) {
+            }else{
+                //for other level update level accourding to underTakeUser
+                if($checkLevel <= 13) {
+                    $matchID = $user->id;
+                    $totalCount = UnderTakeUser::where(function ($query) use ($matchID) {
+                            $query->where('sequece_wise_user_added_record_ids', 'like', "%,$matchID,%") // Matches if $matchID is in the middle
+                                ->orWhere('sequece_wise_user_added_record_ids', 'like', "$matchID,%") // Matches if $matchID is at the start
+                                ->orWhere('sequece_wise_user_added_record_ids', 'like', "%,$matchID") // Matches if $matchID is at the end
+                                ->orWhere('sequece_wise_user_added_record_ids', '=', "$matchID"); // Matches if $matchID is the only value
+                            })->whereNull('deleted_at') // Ensures 'deleted_at' is null
+                            ->count();
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+                
+            }
+            /*
+            if($checkLevel == 2) {
                 $case2 = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", 1])->get();
-
-                // $case2 = UnderTakeUser::selectRaw('upline_id, GROUP_CONCAT(id) as ids, GROUP_CONCAT(sponser_id) as sponser_ids')
-                // ->whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ?", ["(,|^)$user->id,", 1])
-                // ->groupBy('upline_id')
-                // ->get();
 
                 if(count($case2) >= $levelRecord['number_of_users']) {
                     User::whereId($user->id)->update(['user_level' => $checkLevel]);
@@ -961,6 +983,7 @@ class UserController extends ResponseController
                     }
                 }
             }
+            */
 
             /* //old code
             $findUserAgain = User::whereId($user->id)->first();
