@@ -530,8 +530,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -572,8 +579,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -614,8 +628,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -656,8 +677,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -698,8 +726,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -740,8 +775,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -782,8 +824,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -824,8 +873,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -866,8 +922,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -908,8 +971,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -950,8 +1020,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
@@ -992,8 +1069,15 @@ class UserController extends ResponseController
                         });
                     }                    
 
-                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
-                        return $carry + count($group);
+                    $numberOfRecordsOfLevelCheckWithDivideRule = $levelRecord['number_of_users'] / 3;
+                    
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) use ($numberOfRecordsOfLevelCheckWithDivideRule) {
+                        $ctVal = count($group);
+                        if($ctVal > $numberOfRecordsOfLevelCheckWithDivideRule) {
+                            $ctVal = $numberOfRecordsOfLevelCheckWithDivideRule;
+                        }
+                        //dd($group);
+                        return $carry + $ctVal;
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
