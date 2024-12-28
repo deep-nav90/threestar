@@ -517,9 +517,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -548,9 +559,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -579,9 +601,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -610,9 +643,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -641,9 +685,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -672,9 +727,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -703,9 +769,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -734,9 +811,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -765,9 +853,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -796,9 +895,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -827,9 +937,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
@@ -858,9 +979,20 @@ class UserController extends ResponseController
                         return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
                     })->toArray();
 
-                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+                    foreach ($groupedRecords as $key => $records) {
+                        //return $key;
+                        $groupedRecords[$key] = array_filter($records, function($record) use ($key, $user) {
+                            $exp = explode(",", $record['sequece_wise_user_added_record_ids']);
+                            $index = array_search($user->id, $exp);
 
-                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                            if(isset($exp[$index + 1])) {
+                                return $record['sequece_wise_user_added_record_ids'];
+                            }
+                            
+                        });
+                    }                    
+
+                    $totalCount = array_reduce($groupedRecords, function ($carry, $group) {
                         return $carry + count($group);
                     }, 0);
 
