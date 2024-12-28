@@ -476,7 +476,9 @@ class UserController extends ResponseController
                 if(count($case1) >= $levelRecord['number_of_users']) {
                     User::whereId($user->id)->update(['user_level' => $checkLevel]);
                 }
-            }else{
+            }
+            /*
+            else{
                 //for other level update level accourding to underTakeUser
                 if($checkLevel <= 13) {
                     $matchID = $user->id;
@@ -493,8 +495,383 @@ class UserController extends ResponseController
                 }
                 
             }
+            */
+
+            else if($checkLevel == 2) {
+                $case2 = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", 1])->get();
+
+                if(count($case2) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 3) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 4) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 5) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 6) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 7) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 8) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 9) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 10) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 11) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 12) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }else if($checkLevel == 13) {
+                $subtractOneLevel = $checkLevel - 1;
+                $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
+
+                if(count($checkCase) >= $levelRecord['number_of_users']) {
+                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                }else {
+                    $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
+                    ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
+                    ->get();
+                    
+                    $groupedRecords = $records->filter(function ($item) use ($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return array_search($user->id, array_slice($ids, 0, $index)) !== false;
+                    })->groupBy(function ($item) use($user) {
+                        $ids = explode(',', $item['sequece_wise_user_added_record_ids']);
+                        $index = array_search($user->id, $ids) + 2;
+                        return implode(',', array_slice($ids, 0, $index)); // Group by first two IDs
+                    })->toArray();
+
+                    $firstThreeGroups = array_slice($groupedRecords, 0, 3, true);
+
+                    $totalCount = array_reduce($firstThreeGroups, function ($carry, $group) {
+                        return $carry + count($group);
+                    }, 0);
+
+                    if($totalCount >= $levelRecord['number_of_users']) {
+                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    }
+                }
+            }
+            
             /*
-            if($checkLevel == 2) {
+            else if($checkLevel == 2) {
                 $case2 = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", 1])->get();
 
                 if(count($case2) >= $levelRecord['number_of_users']) {
@@ -1053,7 +1430,10 @@ class UserController extends ResponseController
 
             $winnigReward = 0;
 
-            if($checkLevel >= 3) {
+            $findUserAgain = User::find($user->id);
+
+
+            if($findUserAgain->user_level >= 3) {
                 $winnigReward = (int)$user->winnig_reward + 1;
             }
 
