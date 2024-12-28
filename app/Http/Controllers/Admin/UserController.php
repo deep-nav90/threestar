@@ -470,6 +470,9 @@ class UserController extends ResponseController
                 $levelRecord = $levelRecordArray;
             }
 
+
+            $rewardPlusAddWhenLevelUp = (int)$user->winnig_reward + 1;
+
             if($checkLevel == 1) {
                 $case1 = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ?", ["(,|^)$user->id$"])->get();
 
@@ -550,7 +553,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -591,7 +594,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 4) {
@@ -599,7 +602,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -640,7 +643,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 5) {
@@ -648,7 +651,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -689,7 +692,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 6) {
@@ -697,7 +700,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -738,7 +741,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 7) {
@@ -746,7 +749,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -787,7 +790,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 8) {
@@ -795,7 +798,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -836,7 +839,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 9) {
@@ -844,7 +847,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -885,7 +888,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 10) {
@@ -893,7 +896,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -934,7 +937,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 11) {
@@ -942,7 +945,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -983,7 +986,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 12) {
@@ -991,7 +994,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -1032,7 +1035,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }else if($checkLevel == 13) {
@@ -1040,7 +1043,7 @@ class UserController extends ResponseController
                 $checkCase = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", $subtractOneLevel])->get();
 
                 if(count($checkCase) >= $levelRecord['number_of_users']) {
-                    User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                    User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                 }else {
                     $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
                     ->orderByRaw("LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) DESC")
@@ -1081,7 +1084,7 @@ class UserController extends ResponseController
                     }, 0);
 
                     if($totalCount >= $levelRecord['number_of_users']) {
-                        User::whereId($user->id)->update(['user_level' => $checkLevel]);
+                        User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
                 }
             }
@@ -1644,17 +1647,18 @@ class UserController extends ResponseController
             // }
 
 
-            $winnigReward = 0;
+            // $winnigReward = 0;
 
-            $findUserAgain = User::find($user->id);
+            // $findUserAgain = User::find($user->id);
 
 
-            if($findUserAgain->user_level >= 3) {
-                $winnigReward = (int)$user->winnig_reward + 1;
-            }
+            // if($findUserAgain->user_level >= 3) {
+            //     $winnigReward = (int)$user->winnig_reward + 1;
+            // }
 
             $addBalance = $user->balance_amount + $addBalAmtCalculate;
-            User::whereId($user->id)->update(['balance_amount' => $addBalance, 'winnig_reward' => $winnigReward]);
+            //User::whereId($user->id)->update(['balance_amount' => $addBalance, 'winnig_reward' => $winnigReward]);
+            User::whereId($user->id)->update(['balance_amount' => $addBalance]);
             $k--;
             
         }
