@@ -143,7 +143,8 @@
 						@endif()
 						@endif()
 
-
+						@if(Auth()->guard('admin')->user())
+						@if(Auth()->guard('admin')->user()->is_super_admin == 1)
 						<li class= "nav-item <?php if(Request::is("admin/claim-reward-list") || Request::is("admin/claim-reward-view/*")) {echo 'nav-item active';} else {echo '';}?>">
 							<a href="{{route('admin.claimRewardManagement')}}">
 								<i class="fas fa-gift"></i>
@@ -151,7 +152,16 @@
 								<!-- <span class="caret"></span> -->
 							</a>
 						</li>
+						@endif()
+						@endif()
+						
 
+						<li class= "nav-item <?php if(Request::is("admin/my-claim-reward-list") || Request::is("admin/my-claim-reward-view/*")) {echo 'nav-item active';} else {echo '';}?>">
+							<a href="{{route('admin.myClaimRewardManagement')}}">
+								<i class="fas fa-gift"></i>
+								<p>My Claimed Reward</p>
+							</a>
+						</li>
 
 
 

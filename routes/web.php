@@ -82,6 +82,9 @@ Route::group(['middleware'=>['loginAuthenticate'], 'namespace' => 'Admin','prefi
     Route::get('claim-reward-view/{claim_reward_id}',[UserController::class, 'viewClaimRewardDetail'])->name('viewClaimRewardDetail');
     
 
+    Route::match(['GET', 'POST'], 'my-claim-reward-list',[UserController::class, 'myClaimRewardManagement'])->name('myClaimRewardManagement');
+    Route::get('my-claim-reward-view/{claim_reward_id}',[UserController::class, 'myViewClaimRewardDetail'])->name('myViewClaimRewardDetail');
+
 
     Route::post('claim-reward-list-by-id',[UserController::class, 'claimRecordListByID'])->name('claimRecordListByID');
 
