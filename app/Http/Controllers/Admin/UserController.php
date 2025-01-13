@@ -500,7 +500,7 @@ class UserController extends ResponseController
             }
             */
 
-
+            /* 13-jan-2025 BEST CODE WITH CHECK THREE LEG OF COUNTING
             else if($checkLevel == 2) {
                 
                 $records = UnderTakeUser::whereRaw("FIND_IN_SET(?, sequece_wise_user_added_record_ids) > 0", [$user->id])
@@ -935,9 +935,10 @@ class UserController extends ResponseController
                 }
                 
             }
+            13-jan-2025 END OF BEST CODE WITH CHECK THREE LEG OF COUNTING */
 
 
-            /* old by 04-jan-2025
+            
             else if($checkLevel == 2) {
                 $case2 = UnderTakeUser::whereRaw("sequece_wise_user_added_record_ids REGEXP ? AND LENGTH(sequece_wise_user_added_record_ids) - LENGTH(REPLACE(sequece_wise_user_added_record_ids, ',', '')) = ? ", ["(,|^)$user->id,", 1])->get();
 
@@ -1526,8 +1527,7 @@ class UserController extends ResponseController
                     }
                 }
             }
-            end of old by 04-jan-2025
-            */
+            
             
             /*
             else if($checkLevel == 2) {
