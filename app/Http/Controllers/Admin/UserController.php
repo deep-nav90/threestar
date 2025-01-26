@@ -25,6 +25,10 @@ use App\Models\Wallet;
 use App\Models\Reward;
 use App\Models\RewardImage;
 use App\Models\ClaimReward;
+
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
+
 class UserController extends ResponseController
 {
 
@@ -433,6 +437,7 @@ class UserController extends ResponseController
     function calculateLevelAndAmount($sequence_ids, $sponser_id, $upline_id, $amount, $saveRecord) {
 
         $staticSponserAmount = 20000;
+        $countingTotalLevel = 13;
         //for sponser fee
         $saveWallet2 = new Wallet();
         $saveWallet2->credit_user_id = $sponser_id;
@@ -458,6 +463,10 @@ class UserController extends ResponseController
         
         $k = count($getUsers);
         foreach($getUsers as $user) {
+
+            $percentageOfAmountAfterLevel = 0;
+            $userIdsPluckFromGroupRecords = [];
+
             $userLevel = $user->user_level;
             $checkLevel = $userLevel + 1;
 
@@ -469,6 +478,29 @@ class UserController extends ResponseController
             if(isset($levelRecordArray)){
                 $levelRecord = $levelRecordArray;
             }
+
+            $currentLevelRecordArray = Arr::first($levelsTable, function ($item) use ($userLevel) {
+                return $item['level'] === $userLevel;
+            });
+
+            $currentLevelRecord = null;
+            if(isset($currentLevelRecordArray)){
+                $currentLevelRecord = $currentLevelRecordArray;
+            }
+
+            if(!$currentLevelRecord) {
+                $currentLevelRecord = $levelRecord;
+                $currentLevelRecord['percentage'] = 0;
+                $currentLevelRecord['level'] = 0;
+                $currentLevelRecord['number_of_users'] = 0;
+                $currentLevelRecord['percentage_amount_after_level'] = 0;
+            }
+
+            $percentageOfAmountAfterLevel = $currentLevelRecord['percentage_amount_after_level'];
+            
+            $calculateExtraProfitAmount = ((($amount / 100) * $percentageOfAmountAfterLevel) / 100) / $countingTotalLevel;
+
+            $calculateExtraProfitAmount = floor($calculateExtraProfitAmount * 100) / 100;
 
 
             $rewardPlusAddWhenLevelUp = (int)$user->winnig_reward + 1;
@@ -1130,6 +1162,40 @@ class UserController extends ResponseController
                         return $carry + $ctVal;
                     }, 0);
 
+                    //start demo for level 5
+
+
+                    /*
+                    $divideRuleByCurrentLevel = $currentLevelRecord['number_of_users'] / 3;
+                    foreach($groupedRecords as $key => $records) {
+                        usort($records, function ($a, $b) {
+                            return $a['id'] <=> $b['id']; // Ascending order
+                        });
+                        
+
+                        $collectLastUserAccordingToSkipForPercentageAmt = array_slice($records, $divideRuleByCurrentLevel);
+
+                        
+                        $pluckUserIds = Arr::pluck($collectLastUserAccordingToSkipForPercentageAmt, 'user_id');
+                        $userIdsPluckFromGroupRecords = collect($userIdsPluckFromGroupRecords)->merge($pluckUserIds);
+                       // return $records;
+                    }
+
+                    $getAlreadyGettingProfitUsers = Wallet::whereCreditUserId($user->id)->where('type_of_credit', '=', 'Extra Profit')->pluck('user_id');
+
+                    // Remove values in $secondArray from $firstArray
+                    $arrayDiff = array_diff($userIdsPluckFromGroupRecords->toArray(), $getAlreadyGettingProfitUsers->toArray());
+
+                    // Re-index the array to ensure consistent numeric keys
+                    $arrayDiff = array_values($arrayDiff);
+
+                    //override data
+                    $userIdsPluckFromGroupRecords = $arrayDiff;
+                    */
+
+                    //demo for level 5
+                    
+
                     if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
@@ -1179,6 +1245,32 @@ class UserController extends ResponseController
                         return $carry + $ctVal;
                     }, 0);
 
+                    $divideRuleByCurrentLevel = $currentLevelRecord['number_of_users'] / 3;
+                    foreach($groupedRecords as $key => $records) {
+                        usort($records, function ($a, $b) {
+                            return $a['id'] <=> $b['id']; // Ascending order
+                        });
+                        
+
+                        $collectLastUserAccordingToSkipForPercentageAmt = array_slice($records, $divideRuleByCurrentLevel);
+
+                        
+                        $pluckUserIds = Arr::pluck($collectLastUserAccordingToSkipForPercentageAmt, 'user_id');
+                        $userIdsPluckFromGroupRecords = collect($userIdsPluckFromGroupRecords)->merge($pluckUserIds);
+                       // return $records;
+                    }
+
+                    $getAlreadyGettingProfitUsers = Wallet::whereCreditUserId($user->id)->where('type_of_credit', '=', 'Extra Profit')->pluck('user_id');
+
+                    // Remove values in $secondArray from $firstArray
+                    $arrayDiff = array_diff($userIdsPluckFromGroupRecords->toArray(), $getAlreadyGettingProfitUsers->toArray());
+
+                    // Re-index the array to ensure consistent numeric keys
+                    $arrayDiff = array_values($arrayDiff);
+
+                    //override data
+                    $userIdsPluckFromGroupRecords = $arrayDiff;
+                    
                     if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
@@ -1228,6 +1320,32 @@ class UserController extends ResponseController
                         return $carry + $ctVal;
                     }, 0);
 
+                    $divideRuleByCurrentLevel = $currentLevelRecord['number_of_users'] / 3;
+                    foreach($groupedRecords as $key => $records) {
+                        usort($records, function ($a, $b) {
+                            return $a['id'] <=> $b['id']; // Ascending order
+                        });
+                        
+
+                        $collectLastUserAccordingToSkipForPercentageAmt = array_slice($records, $divideRuleByCurrentLevel);
+
+                        
+                        $pluckUserIds = Arr::pluck($collectLastUserAccordingToSkipForPercentageAmt, 'user_id');
+                        $userIdsPluckFromGroupRecords = collect($userIdsPluckFromGroupRecords)->merge($pluckUserIds);
+                       // return $records;
+                    }
+
+                    $getAlreadyGettingProfitUsers = Wallet::whereCreditUserId($user->id)->where('type_of_credit', '=', 'Extra Profit')->pluck('user_id');
+
+                    // Remove values in $secondArray from $firstArray
+                    $arrayDiff = array_diff($userIdsPluckFromGroupRecords->toArray(), $getAlreadyGettingProfitUsers->toArray());
+
+                    // Re-index the array to ensure consistent numeric keys
+                    $arrayDiff = array_values($arrayDiff);
+
+                    //override data
+                    $userIdsPluckFromGroupRecords = $arrayDiff;
+                    
                     if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
@@ -1277,6 +1395,32 @@ class UserController extends ResponseController
                         return $carry + $ctVal;
                     }, 0);
 
+                    $divideRuleByCurrentLevel = $currentLevelRecord['number_of_users'] / 3;
+                    foreach($groupedRecords as $key => $records) {
+                        usort($records, function ($a, $b) {
+                            return $a['id'] <=> $b['id']; // Ascending order
+                        });
+                        
+
+                        $collectLastUserAccordingToSkipForPercentageAmt = array_slice($records, $divideRuleByCurrentLevel);
+
+                        
+                        $pluckUserIds = Arr::pluck($collectLastUserAccordingToSkipForPercentageAmt, 'user_id');
+                        $userIdsPluckFromGroupRecords = collect($userIdsPluckFromGroupRecords)->merge($pluckUserIds);
+                       // return $records;
+                    }
+
+                    $getAlreadyGettingProfitUsers = Wallet::whereCreditUserId($user->id)->where('type_of_credit', '=', 'Extra Profit')->pluck('user_id');
+
+                    // Remove values in $secondArray from $firstArray
+                    $arrayDiff = array_diff($userIdsPluckFromGroupRecords->toArray(), $getAlreadyGettingProfitUsers->toArray());
+
+                    // Re-index the array to ensure consistent numeric keys
+                    $arrayDiff = array_values($arrayDiff);
+
+                    //override data
+                    $userIdsPluckFromGroupRecords = $arrayDiff;
+                    
                     if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
@@ -1326,6 +1470,32 @@ class UserController extends ResponseController
                         return $carry + $ctVal;
                     }, 0);
 
+                    $divideRuleByCurrentLevel = $currentLevelRecord['number_of_users'] / 3;
+                    foreach($groupedRecords as $key => $records) {
+                        usort($records, function ($a, $b) {
+                            return $a['id'] <=> $b['id']; // Ascending order
+                        });
+                        
+
+                        $collectLastUserAccordingToSkipForPercentageAmt = array_slice($records, $divideRuleByCurrentLevel);
+
+                        
+                        $pluckUserIds = Arr::pluck($collectLastUserAccordingToSkipForPercentageAmt, 'user_id');
+                        $userIdsPluckFromGroupRecords = collect($userIdsPluckFromGroupRecords)->merge($pluckUserIds);
+                       // return $records;
+                    }
+
+                    $getAlreadyGettingProfitUsers = Wallet::whereCreditUserId($user->id)->where('type_of_credit', '=', 'Extra Profit')->pluck('user_id');
+
+                    // Remove values in $secondArray from $firstArray
+                    $arrayDiff = array_diff($userIdsPluckFromGroupRecords->toArray(), $getAlreadyGettingProfitUsers->toArray());
+
+                    // Re-index the array to ensure consistent numeric keys
+                    $arrayDiff = array_values($arrayDiff);
+
+                    //override data
+                    $userIdsPluckFromGroupRecords = $arrayDiff;
+                    
                     if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
@@ -1375,6 +1545,32 @@ class UserController extends ResponseController
                         return $carry + $ctVal;
                     }, 0);
 
+                    $divideRuleByCurrentLevel = $currentLevelRecord['number_of_users'] / 3;
+                    foreach($groupedRecords as $key => $records) {
+                        usort($records, function ($a, $b) {
+                            return $a['id'] <=> $b['id']; // Ascending order
+                        });
+                        
+
+                        $collectLastUserAccordingToSkipForPercentageAmt = array_slice($records, $divideRuleByCurrentLevel);
+
+                        
+                        $pluckUserIds = Arr::pluck($collectLastUserAccordingToSkipForPercentageAmt, 'user_id');
+                        $userIdsPluckFromGroupRecords = collect($userIdsPluckFromGroupRecords)->merge($pluckUserIds);
+                       // return $records;
+                    }
+
+                    $getAlreadyGettingProfitUsers = Wallet::whereCreditUserId($user->id)->where('type_of_credit', '=', 'Extra Profit')->pluck('user_id');
+
+                    // Remove values in $secondArray from $firstArray
+                    $arrayDiff = array_diff($userIdsPluckFromGroupRecords->toArray(), $getAlreadyGettingProfitUsers->toArray());
+
+                    // Re-index the array to ensure consistent numeric keys
+                    $arrayDiff = array_values($arrayDiff);
+
+                    //override data
+                    $userIdsPluckFromGroupRecords = $arrayDiff;
+                    
                     if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
@@ -1424,6 +1620,32 @@ class UserController extends ResponseController
                         return $carry + $ctVal;
                     }, 0);
 
+                    $divideRuleByCurrentLevel = $currentLevelRecord['number_of_users'] / 3;
+                    foreach($groupedRecords as $key => $records) {
+                        usort($records, function ($a, $b) {
+                            return $a['id'] <=> $b['id']; // Ascending order
+                        });
+                        
+
+                        $collectLastUserAccordingToSkipForPercentageAmt = array_slice($records, $divideRuleByCurrentLevel);
+
+                        
+                        $pluckUserIds = Arr::pluck($collectLastUserAccordingToSkipForPercentageAmt, 'user_id');
+                        $userIdsPluckFromGroupRecords = collect($userIdsPluckFromGroupRecords)->merge($pluckUserIds);
+                       // return $records;
+                    }
+
+                    $getAlreadyGettingProfitUsers = Wallet::whereCreditUserId($user->id)->where('type_of_credit', '=', 'Extra Profit')->pluck('user_id');
+
+                    // Remove values in $secondArray from $firstArray
+                    $arrayDiff = array_diff($userIdsPluckFromGroupRecords->toArray(), $getAlreadyGettingProfitUsers->toArray());
+
+                    // Re-index the array to ensure consistent numeric keys
+                    $arrayDiff = array_values($arrayDiff);
+
+                    //override data
+                    $userIdsPluckFromGroupRecords = $arrayDiff;
+                    
                     if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
@@ -1473,6 +1695,32 @@ class UserController extends ResponseController
                         return $carry + $ctVal;
                     }, 0);
 
+                    $divideRuleByCurrentLevel = $currentLevelRecord['number_of_users'] / 3;
+                    foreach($groupedRecords as $key => $records) {
+                        usort($records, function ($a, $b) {
+                            return $a['id'] <=> $b['id']; // Ascending order
+                        });
+                        
+
+                        $collectLastUserAccordingToSkipForPercentageAmt = array_slice($records, $divideRuleByCurrentLevel);
+
+                        
+                        $pluckUserIds = Arr::pluck($collectLastUserAccordingToSkipForPercentageAmt, 'user_id');
+                        $userIdsPluckFromGroupRecords = collect($userIdsPluckFromGroupRecords)->merge($pluckUserIds);
+                       // return $records;
+                    }
+
+                    $getAlreadyGettingProfitUsers = Wallet::whereCreditUserId($user->id)->where('type_of_credit', '=', 'Extra Profit')->pluck('user_id');
+
+                    // Remove values in $secondArray from $firstArray
+                    $arrayDiff = array_diff($userIdsPluckFromGroupRecords->toArray(), $getAlreadyGettingProfitUsers->toArray());
+
+                    // Re-index the array to ensure consistent numeric keys
+                    $arrayDiff = array_values($arrayDiff);
+
+                    //override data
+                    $userIdsPluckFromGroupRecords = $arrayDiff;
+                    
                     if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
@@ -1522,6 +1770,32 @@ class UserController extends ResponseController
                         return $carry + $ctVal;
                     }, 0);
 
+                    $divideRuleByCurrentLevel = $currentLevelRecord['number_of_users'] / 3;
+                    foreach($groupedRecords as $key => $records) {
+                        usort($records, function ($a, $b) {
+                            return $a['id'] <=> $b['id']; // Ascending order
+                        });
+                        
+
+                        $collectLastUserAccordingToSkipForPercentageAmt = array_slice($records, $divideRuleByCurrentLevel);
+
+                        
+                        $pluckUserIds = Arr::pluck($collectLastUserAccordingToSkipForPercentageAmt, 'user_id');
+                        $userIdsPluckFromGroupRecords = collect($userIdsPluckFromGroupRecords)->merge($pluckUserIds);
+                       // return $records;
+                    }
+
+                    $getAlreadyGettingProfitUsers = Wallet::whereCreditUserId($user->id)->where('type_of_credit', '=', 'Extra Profit')->pluck('user_id');
+
+                    // Remove values in $secondArray from $firstArray
+                    $arrayDiff = array_diff($userIdsPluckFromGroupRecords->toArray(), $getAlreadyGettingProfitUsers->toArray());
+
+                    // Re-index the array to ensure consistent numeric keys
+                    $arrayDiff = array_values($arrayDiff);
+
+                    //override data
+                    $userIdsPluckFromGroupRecords = $arrayDiff;
+                    
                     if($totalCount >= $levelRecord['number_of_users']) {
                         User::whereId($user->id)->update(['user_level' => $checkLevel, 'winnig_reward' => $rewardPlusAddWhenLevelUp]);
                     }
@@ -2081,7 +2355,24 @@ class UserController extends ResponseController
                 //}
             }
 
-            $addBalAmtCalculate = $calculateAmount;
+            //EXTRA PROFIT
+            $extraProfitAmtAdd = 0;
+            if(count($userIdsPluckFromGroupRecords) > 0 && $calculateExtraProfitAmount > 0) {
+                foreach($userIdsPluckFromGroupRecords as $uID) {
+                    $profitSaveWallet = new Wallet();
+                    $profitSaveWallet->credit_user_id = $user->id;
+                    $profitSaveWallet->user_id = $uID;
+                    $profitSaveWallet->percentage = $currentLevelRecord['percentage_amount_after_level'];
+                    $profitSaveWallet->total_amount = ((int)$amount);
+                    $profitSaveWallet->credit_user_amount = $calculateExtraProfitAmount * 100;
+                    $profitSaveWallet->type_of_credit = "Extra Profit";
+                    $profitSaveWallet->save();
+                    $extraProfitAmtAdd = ((int)$extraProfitAmtAdd) + (int)(($calculateExtraProfitAmount * 100));
+                }
+            }
+            //END OF EXTRA PROFIT
+
+            $addBalAmtCalculate = $calculateAmount + $extraProfitAmtAdd;
             // if($sponser_id == $user->id){
             //     $addBalAmtCalculate = $staticSponserAmount + $addBalAmtCalculate;
             // }
@@ -2345,9 +2636,9 @@ class UserController extends ResponseController
             
 
             if($admin->is_super_admin == 0) {
-                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
+                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" OR wallets.type_of_credit = "Extra Profit" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
             }else{
-                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
+                $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" OR wallets.type_of_credit = "Extra Profit" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $admin->id)->orderBy($column,$asc_desc);
             }
 
 
@@ -2367,7 +2658,7 @@ class UserController extends ResponseController
                             $query->orWhere(DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")")'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")")'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" OR wallets.type_of_credit = "Extra Profit" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2))'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2))'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2))'), 'Like', '%' . $search . '%');
@@ -2428,7 +2719,7 @@ class UserController extends ResponseController
 
     public function viewWalletDetails(Request $request, $wallet_id) {
         $walletID = base64_decode($wallet_id);
-        $walletDetails = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereId($walletID)->first();
+        $walletDetails = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" OR wallets.type_of_credit = "Extra Profit" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereId($walletID)->first();
 
         return view('admin.view-wallet', compact('walletDetails'));
     }
@@ -2575,7 +2866,7 @@ class UserController extends ResponseController
 
             $countClaimRewards = ClaimReward::whereDeletedAt(null)->whereUserId($userID)->count();        
             $encodeID = $user_id;
-            $userDetails = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(BV) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS total_debit_amount'), DB::raw('ROUND(winnig_reward - (SELECT COUNT(*) FROM claim_rewards WHERE claim_rewards.user_id = users.id), 2) AS show_pending_claim'))->whereId($userID)->first();
+            $userDetails = User::select("*",DB::raw('DATE_FORMAT(updated_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT(custom_user_id, " (", name, ")") AS user_name_with_id'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Tree") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS tree_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "By Sponser") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS direct_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS total_amount_credit'), DB::raw('CONCAT("(BV) ", ROUND(users.balance_amount / 100, 2)) AS show_balance_amount'), DB::raw('CASE WHEN (ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(debit_amount) FROM wallets WHERE wallets.credit_user_id = users.id) / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS total_debit_amount'), DB::raw('ROUND(winnig_reward - (SELECT COUNT(*) FROM claim_rewards WHERE claim_rewards.user_id = users.id), 2) AS show_pending_claim'), DB::raw('CASE WHEN (ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "Extra Profit") / 100, 2)) > 0 THEN CONCAT("(BV)", " ", ROUND((SELECT SUM(credit_user_amount) FROM wallets WHERE wallets.credit_user_id = users.id AND type_of_credit = "Extra Profit") / 100, 2)) ELSE CONCAT("(BV)", " ", 0) END AS total_extra_profit'))->whereId($userID)->first();
 
 
             if($userDetails->show_pending_claim > 0) {
@@ -2622,7 +2913,7 @@ class UserController extends ResponseController
             
 
            
-            $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $userID)->orderBy($column,$asc_desc);
+            $data = Wallet::select("*", DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y") AS date_show'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")") AS upline_user_id_with_name'), DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")") AS under_user_id_with_name'), DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" OR wallets.type_of_credit = "Extra Profit" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", ROUND(wallets.credit_user_amount / 100, 2)) END AS percentag_or_flat_amount'), DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2)) AS total_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2)) AS credit_user_amount_in_rupees'), DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2)) AS debit_amount_show'))->whereDeletedAt(null)->where('credit_user_id', '=', $userID)->orderBy($column,$asc_desc);
             
 
 
@@ -2642,7 +2933,7 @@ class UserController extends ResponseController
                             $query->orWhere(DB::raw('DATE_FORMAT(created_at, "%d-%M-%Y")'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.upline_id), " (", (SELECT name FROM users WHERE users.id = wallets.upline_id), ")")'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT((SELECT custom_user_id FROM users WHERE users.id = wallets.user_id), " (", (SELECT name FROM users WHERE users.id = wallets.user_id), ")")'), 'Like', '%' . $search . '%');
-                            $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
+                            $query->orWhere(DB::raw('CASE WHEN wallets.type_of_credit = "By Tree" OR wallets.type_of_credit = "Extra Profit" THEN CONCAT(wallets.percentage," %") ELSE CONCAT("(BV)", " ", wallets.credit_user_amount) END'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.total_amount / 100, 2))'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.credit_user_amount / 100, 2))'), 'Like', '%' . $search . '%');
                             $query->orWhere(DB::raw('CONCAT("(BV) ", ROUND(wallets.debit_amount / 100, 2))'), 'Like', '%' . $search . '%');
@@ -3497,6 +3788,30 @@ class UserController extends ResponseController
         $findUser->update();
 
         return ['success' => 1];
+    }
+
+    public function downloadDB(Request $request) {
+        $dbHost = env('DB_HOST');
+        $dbName = env('DB_DATABASE');
+        $dbUser = env('DB_USERNAME');
+        $dbPassword = env('DB_PASSWORD');
+        $filePath = storage_path('app/backup.sql');
+
+        $command = "mysqldump -h $dbHost -u $dbUser -p'$dbPassword' $dbName > $filePath";
+
+        $output = null;
+        $returnCode = null;
+        exec($command, $output, $returnCode);
+
+        if ($returnCode !== 0) {
+            return response()->json([
+                'error' => 'Failed to backup database',
+                'output' => $output,
+                'returnCode' => $returnCode
+            ], 500);
+        }
+
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 
 }

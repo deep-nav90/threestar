@@ -22,7 +22,7 @@ return new class extends Migration
             $table->double('percentage')->default(0);
             $table->bigInteger('total_amount');
             $table->bigInteger('credit_user_amount');
-            $table->enum('type_of_credit',['By Tree','By Sponser', 'By Debit']);
+            $table->enum('type_of_credit',['By Tree','By Sponser', 'By Debit', 'Extra Profit']);
             $table->softDeletes();
             $table->timestamps();
         });

@@ -177,6 +177,13 @@ span.select2.select2-container.select2-container--default {
                                         </tr>
 
                                         <tr>
+                                            <th>Total Extra Profit Amount</th>
+                                            <td>
+                                                {{$userDetails->total_extra_profit}}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
                                             <th>Total Debit Amount</th>
                                             <td>
                                                 {{$userDetails->total_debit_amount}}

@@ -49,6 +49,7 @@
 											<th>Percentage/Flat</th>
 											<td>
                                             {{$walletDetails->percentag_or_flat_amount}}
+											
 											</td>
 										</tr>
 										<tr>
@@ -62,6 +63,10 @@
 											<th>Credit Amoount</th>
 											<td>
                                             {{$walletDetails->credit_user_amount_in_rupees}}
+											@if($walletDetails->type_of_credit == 'Extra Profit')
+											<br>
+											  ({{$walletDetails->percentag_or_flat_amount}} of Total Amount with divide by 13)
+											@endif()
 											</td>
 										</tr>
 

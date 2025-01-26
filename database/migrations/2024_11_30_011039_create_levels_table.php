@@ -16,6 +16,7 @@ return new class extends Migration
             $table->double('percentage');
             $table->integer('level');
             $table->bigInteger('number_of_users');
+            $table->double('percentage_amount_after_level')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

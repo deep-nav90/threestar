@@ -11,6 +11,14 @@
     display: flex;
     justify-content: right;
 }
+
+.dashboard_panel .same_wd_btn {  
+    width: 200px;
+}
+
+.downloadDB {
+    margin-top: 3rem !important;
+}
 </style>
 
 		<div class="main-panel dashboard_panel">
@@ -25,6 +33,15 @@
 							</ol>
 						</nav>
 						@include('admin.layout.notification')
+					</div>
+
+
+					<div class="downloadDB">
+						<div class="download_db_btn">
+							<a href="{{route('admin.downloadDB')}}" target="_blank">
+								<button type="button" class="btn btn-warning same_wd_btn">Download Database</button>
+							</a>
+						</div>
 					</div>
 					<div class="row mt-5">
 						<div class="col-md-6 mb_bottom ">

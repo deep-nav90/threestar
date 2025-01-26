@@ -90,6 +90,9 @@ Route::group(['middleware'=>['loginAuthenticate'], 'namespace' => 'Admin','prefi
 
     Route::get('users-wallet-view/claim-reward-list-by-id-view-detail/{user_id}/{reward_id}',[UserController::class, 'claimRewardByUserIDViewDetails'])->name('claimRewardByUserIDViewDetails');
 
+    Route::get('download-db',[UserController::class, 'downloadDB'])->name('downloadDB');
+
+
     Route::post('delete-user','UserController@deleteUser')->name('deleteUser');
     Route::post('block-user',[UserController::class, 'blockUser'])->name('blockUser');
 
