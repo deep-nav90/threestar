@@ -111,6 +111,21 @@
 
 
 					<div class="row mt-5">
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$myWalletExtraProfitFormat}}</span>
+									<div class="icon_text">
+									<i class="fas fa-money-bill"></i>
+										<h2>
+											My Wallet Extra Profit
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
+
 						<div class="col-md-6 mb_bottom ">
 							<a href="javascript:void(0);" class="hover_box">
 								<div class="box">
@@ -125,19 +140,7 @@
 							</a>
 						</div>
 
-						<div class="col-md-6 mb_bottom ">
-							<a href="javascript:void(0);" class="hover_box">
-								<div class="box">
-									<span class="total_count">{{$balanceAmount}}</span>
-									<div class="icon_text">
-										<i class="fas fa-money-check-alt"></i>
-										<h2>
-											My Balance Amount
-										</h2>
-									</div>
-								</div>
-							</a>
-						</div>
+						
 					</div>
 
 					@if(Auth::guard('admin')->user()->is_super_admin == 1)
@@ -173,6 +176,20 @@
 					</div>
 					@endif()
 					<div class="row mt-5">
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">{{$balanceAmount}}</span>
+									<div class="icon_text">
+										<i class="fas fa-money-check-alt"></i>
+										<h2>
+											My Balance Amount
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
 					
 						<div class="col-md-6 mb_bottom ">
 							<a href="javascript:void(0);" class="hover_box">
@@ -189,19 +206,7 @@
 						</div>
 
 
-						<div class="col-md-6 mb_bottom ">
-							<a href="javascript:void(0);" class="hover_box">
-								<div class="box">
-									<span class="total_count">Level {{Auth::guard('admin')->user()->user_level}}</span>
-									<div class="icon_text">
-									<i class="fas fa-level-up-alt"></i>
-										<h2>
-											My Level
-										</h2>
-									</div>
-								</div>
-							</a>
-						</div>
+						
 
 					</div>
 
@@ -277,9 +282,9 @@
 					@endif()
 
 
-					@if(Auth::guard('admin')->user()->is_super_admin == 1)
-					<div class="row mt-5">
 					
+					<div class="row mt-5">
+						@if(Auth::guard('admin')->user()->is_super_admin == 1)
 						<div class="col-md-6 mb_bottom ">
 							<a href="javascript:void(0);" class="hover_box">
 								<div class="box">
@@ -293,9 +298,24 @@
 								</div>
 							</a>
 						</div>
+						@endif()
+
+						<div class="col-md-6 mb_bottom ">
+							<a href="javascript:void(0);" class="hover_box">
+								<div class="box">
+									<span class="total_count">Level {{Auth::guard('admin')->user()->user_level}}</span>
+									<div class="icon_text">
+									<i class="fas fa-level-up-alt"></i>
+										<h2>
+											My Level
+										</h2>
+									</div>
+								</div>
+							</a>
+						</div>
 
 					</div>
-					@endif()
+					
 					
 
 					

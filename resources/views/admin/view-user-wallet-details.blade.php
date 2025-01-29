@@ -93,6 +93,16 @@ span.select2.select2-container.select2-container--default {
     line-height: 44px;
 }
 
+
+select#filter-wallet {
+    display: flex;
+    width: 15%;
+    position: absolute;
+    background-color: #57b4ca;
+    color: #000000;
+    font-weight: 500;
+}
+
 	</style>
 
 		<div class="main-panel dashboard_panel">
@@ -234,6 +244,18 @@ span.select2.select2-container.select2-container--default {
 					<h1>Wallet listing</h1>
 					<div class="card">
 						<div class="card-body">
+
+              <div class="filter-select">
+								<select id="filter-wallet" class="form-control form-group" placeholder="Select Filter By List">
+									<option value="">All</option>
+									<option value="By Tree">Tree Amount</option>
+									<option value="By Sponser">Direct Amount</option>
+									<option value="Extra Profit">Extra Profit</option>
+									<option value="By Debit">Debit Amount</option>
+										
+								</select>
+
+							</div>
 							
 
 							<div class="serch_icon">
@@ -664,6 +686,20 @@ span.select2.select2-container.select2-container--default {
             dataTableHit(__data);
 
           });
+
+          $("#filter-wallet").on("change", function() {
+            let val = $(this).val();
+            let ____user_status = $("#user_status").val();
+            let ____user_type = $("#user_type").val();
+            let ____data = {
+              '_token': "{{csrf_token()}}",
+              'user_status' : ____user_status,
+              'user_type' : ____user_type,
+              'type_of_credit' : val
+            }
+
+            dataTableHit(____data);
+          })
 
           $(".reset-button").on("click",function(){
 
