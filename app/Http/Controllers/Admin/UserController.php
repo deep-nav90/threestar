@@ -466,6 +466,7 @@ class UserController extends ResponseController
         $splitSequenceUserIds = explode(',', $sequence_ids);
 
         $getUsers = User::whereIn('id', $splitSequenceUserIds)->get();
+        $last13Users = User::latest('id')->whereIn('id', $splitSequenceUserIds)->take(13)->pluck('id')->toArray();
         $levelsTable = Level::get()->toArray();
         
         $k = count($getUsers);
@@ -2344,8 +2345,9 @@ class UserController extends ResponseController
                 $levelRecord2 = $levelRecordArray2;
             }
 
+            $calculateAmount = 0;
             if($levelRecord2) {
-                //if($findUserAgain->user_level != 0) {
+                if(in_array($user->id, $last13Users)) {
                     $calculateAmount = (((int)$amount) / 100) * $levelRecord2['percentage'];
                     $saveWallet = new Wallet();
                     $saveWallet->credit_user_id = $user->id;
@@ -2359,7 +2361,7 @@ class UserController extends ResponseController
                     $saveWallet->save();
     
                     
-                //}
+                }
             }
 
             //EXTRA PROFIT
