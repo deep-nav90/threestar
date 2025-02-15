@@ -81,7 +81,7 @@
 
   <script>
     // Set the launch date (example: 10 days from now)
-    const launchDate = new Date('2024-12-31');
+    const launchDate = new Date('2025-02-20');
     //launchDate.setDate(launchDate.getDate() + 10);
 
     function updateCountdown() {

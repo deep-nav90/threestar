@@ -29,6 +29,9 @@ use App\Models\ClaimReward;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+
 class UserController extends ResponseController
 {
 
@@ -3807,22 +3810,24 @@ class UserController extends ResponseController
         $dbName = env('DB_DATABASE');
         $dbUser = env('DB_USERNAME');
         $dbPassword = env('DB_PASSWORD');
+    
         $filePath = storage_path('app/backup.sql');
-
+    
+        // Create the mysqldump command
         $command = "mysqldump -h $dbHost -u $dbUser -p'$dbPassword' $dbName > $filePath";
-
-        $output = null;
-        $returnCode = null;
-        exec($command, $output, $returnCode);
-
-        if ($returnCode !== 0) {
+    
+        // Run using Symfony Process
+        $process = Process::fromShellCommandline($command);
+        $process->run();
+    
+        // Check for errors
+        if (!$process->isSuccessful()) {
             return response()->json([
-                'error' => 'Failed to backup database',
-                'output' => $output,
-                'returnCode' => $returnCode
+                'error' => 'Database backup failed',
+                'message' => $process->getErrorOutput(),
             ], 500);
         }
-
+    
         return response()->download($filePath)->deleteFileAfterSend(true);
     }
 
