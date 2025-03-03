@@ -1,5 +1,5 @@
 @extends('admin.layout.layout')
-@section('title','Add User')
+@section('title','Edit User')
 @section('content')
 
 <style type="text/css">
@@ -87,7 +87,8 @@ span#select2-upline_id-container {
 							<ol class="breadcrumb">
 								<li class="breadcrumb-item"><a href="{{route('admin.dashboard')}}"><i class="fas fa-home"></i></a></li>
 								<li class="breadcrumb-item active"><a href="{{route('admin.userManagement')}}">User Management</a></li>
-								<li class="breadcrumb-item remove_hover">Add User</li>
+                                <li class="breadcrumb-item active"><a href="{{route('admin.viewUserDetails',base64_encode($findUser->id))}}">View User</a></li>
+								<li class="breadcrumb-item remove_hover">Edit User</li>
 								<!-- <li class="breadcrumb-item active" aria-current="page">Data</li> -->
 							</ol>
 						</nav>
@@ -101,64 +102,6 @@ span#select2-upline_id-container {
 							<form method="POST" enctype="multipart/form-data" id="validate_form">
 								{{@csrf_field()}}
 
-
-								<div class="add_content">
-									<div class="row">
-										<!-- Name Field -->
-										<div class="col-md-6">
-											<label for="sponser_id" class="pb-1">Sponser ID</label>
-											<span class="artisan-star">*</span>
-											<div class="form-group pb-3">
-												<!-- <input type="text" class="form-control" placeholder="Enter Sponser ID" name="sponser_id" /> -->
-
-												<select id="sponser_id" class="form-control form-group select2" style="padding: .6rem 1rem; position: relative;" name="sponser_id" placeholder="Select Sponser ID">
-												<option value="">Select Sponser ID</option>
-													
-												@foreach($allUserIds as $customUserID)
-												@if(in_array($customUserID, $disabledUserIds))
-												<option value="{{$customUserID}}">{{$customUserID}}</option>
-												@else
-												<option value="{{$customUserID}}">{{$customUserID}}</option>
-												@endif()
-												
-												@endforeach()
-													
-												</select>
-												@if($errors->first('sponser_id'))
-													<span class="text-danger error">{{$errors->first('sponser_id')}}</span>
-												@endif
-
-												<label id="sponser_id-error" class="error jq-validator" for="sponser_id">Please select Sponser ID.</label>
-
-											</div>
-										</div>
-
-										<div class="col-md-6">
-											<label for="upline_id" class="pb-1">Upline ID</label>
-											<span class="artisan-star">*</span>
-											<div class="form-group pb-3">
-											<select id="upline_id" class="form-control form-group select2" style="padding: .6rem 1rem; position: relative;" name="upline_id" placeholder="Select Upline ID">
-												<option value="">Select Upline ID</option>
-													<!-- @foreach($allUserIds as $customUserID)
-													@if(in_array($customUserID, $disabledUserIds))
-													<option disabled value="{{$customUserID}}">{{$customUserID}}</option>
-													@else
-													<option value="{{$customUserID}}">{{$customUserID}}</option>
-													@endif()
-													
-													@endforeach() -->
-												</select>
-												@if($errors->first('upline_id'))
-													<span class="text-danger error">{{$errors->first('upline_id')}}</span>
-												@endif
-
-												<label id="upline_id-error" class="error jq-validator" for="upline_id">Please select Upline ID.</label>
-											</div>
-										</div>
-								
-									</div>
-								</div>
-
 								<div class="add_content">
 									<div class="row">
 										<!-- Name Field -->
@@ -166,7 +109,7 @@ span#select2-upline_id-container {
 											<label for="name" class="pb-1">Name</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-												<input type="text" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" class="form-control" placeholder="Enter Name" name="name" />
+												<input type="text" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" value="{{$findUser->name}}" class="form-control" placeholder="Enter Name" name="name" />
 												@if($errors->first('name'))
 													<span class="text-danger error">{{$errors->first('name')}}</span>
 												@endif
@@ -181,10 +124,14 @@ span#select2-upline_id-container {
 
 											<?php 
 												$carbon_max_calander_date = Carbon\Carbon::now()->subYear(18)->format('Y-m-d');
+
+                                               // dd($findUser);
+                                                $dateOfBirth = $findUser->dob;
+                                                //dd($dateOfBirth);
 											?>
 
 											<div class="form-group pb-3" style="position: relative;">
-												<input type="date" class="form-control" value="{{$carbon_max_calander_date}}" name="dob" min="1920-01-01" max="{{$carbon_max_calander_date}}" placeholder="Enter Date of Birth" onkeydown="return false"/>
+												<input type="date" class="form-control" value="{{$dateOfBirth}}" name="dob" min="1920-01-01" max="{{$carbon_max_calander_date}}" placeholder="Enter Date of Birth" onkeydown="return false"/>
 
 												<!-- <input type="date" class="form-control" name="dob" placeholder="Enter Date of Birth"/> -->
 
@@ -208,18 +155,18 @@ span#select2-upline_id-container {
 												<!-- Checkboxes -->
 												<div class="relation-checkboxes" style="display: flex; gap: 15px; margin-right: 15px;">
 													<label>
-														<input type="radio" checked name="s_w_d" value="Son Off" class="yellow-radio"> S/O
+														<input type="radio" @if($findUser->s_w_d == 'Son Off') checked @endif() name="s_w_d" value="Son Off" class="yellow-radio"> S/O
 													</label>
 													<label>
-														<input type="radio" name="s_w_d" value="Daughter Off" class="yellow-radio"> D/O
+														<input type="radio" @if($findUser->s_w_d == 'Daughter Off') checked @endif() name="s_w_d" value="Daughter Off" class="yellow-radio"> D/O
 													</label>
 													<label>
-														<input type="radio" name="s_w_d" value="Wife Off" class="yellow-radio"> W/O
+														<input type="radio" @if($findUser->s_w_d == 'Wife Off') checked @endif() name="s_w_d" value="Wife Off" class="yellow-radio"> W/O
 													</label>
 												</div>
 
 												<!-- Input Field -->
-												<input type="text" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" class="form-control" id="swd_name" name="swd_name" placeholder="Enter Relation Name" />
+												<input type="text" value="{{$findUser->swd_name}}" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" class="form-control" id="swd_name" name="swd_name" placeholder="Enter Relation Name" />
 											</div>
 											<!-- Validation Error -->
 											@if($errors->first('swd_name'))
@@ -241,7 +188,7 @@ span#select2-upline_id-container {
 										<div class="col-md-6">
 											<label for="nomination_name" class="pb-1">Nomination Name</label>
 											<div class="form-group pb-3">
-												<input type="text" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" class="form-control" placeholder="Enter Nomination Name" name="nomination_name" />
+												<input type="text" value="{{$findUser->nomination_name}}" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" class="form-control" placeholder="Enter Nomination Name" name="nomination_name" />
 												@if($errors->first('nomination_name'))
 													<span class="text-danger error">{{$errors->first('nomination_name')}}</span>
 												@endif
@@ -258,7 +205,7 @@ span#select2-upline_id-container {
 											?>
 
 											<div class="form-group pb-3" style="position: relative;">
-												<input type="date" class="form-control" name="nomination_dob" min="1920-01-01" max="{{$carbon_max_calander_date}}" placeholder="Enter Nomination DOB" onkeydown="return false"/>
+												<input type="date" value="{{$findUser->nomination_dob}}" class="form-control" name="nomination_dob" min="1920-01-01" max="{{$carbon_max_calander_date}}" placeholder="Enter Nomination DOB" onkeydown="return false"/>
 
 												<!-- <input type="date" class="form-control" name="dob" placeholder="Enter Nomination DOB"/> -->
 
@@ -280,7 +227,8 @@ span#select2-upline_id-container {
 											<label for="mobile_number" class="pb-1">Mobile Number</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-											<input type="tel" autocomplete="off" class="form-control" name="mobile_number" id="phone_number" placeholder="Enter Mobile Number"/>
+											<input type="tel" autocomplete="off" class="form-control" name="mobile_number" value="{{$findUser->country_code}}{{$findUser->mobile_number}}" id="phone_number" placeholder="Enter Mobile Number"  inputmode="numeric" 
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
 												@if($errors->first('mobile_number'))
 													<span class="text-danger error">{{$errors->first('mobile_number')}}</span>
 												@endif
@@ -292,7 +240,7 @@ span#select2-upline_id-container {
 										<div class="col-md-6">
 											<label for="email" class="pb-1">Email</label>
 											<div class="form-group pb-3">
-												<input type="email" class="form-control" placeholder="Enter Email" name="email" />
+												<input type="email" value="{{$findUser->email}}" class="form-control" placeholder="Enter Email" name="email" />
 												@if($errors->first('email'))
 													<span class="text-danger error">{{$errors->first('email')}}</span>
 												@endif
@@ -309,7 +257,7 @@ span#select2-upline_id-container {
 											<label for="adhar_number" class="pb-1">Aadhar Number</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter Aadhar Number" name="adhar_number" />
+												<input type="text" value="{{$findUser->adhar_number}}" class="form-control" placeholder="Enter Aadhar Number" name="adhar_number" />
 												@if($errors->first('adhar_number'))
 													<span class="text-danger error">{{$errors->first('adhar_number')}}</span>
 												@endif
@@ -320,7 +268,7 @@ span#select2-upline_id-container {
 											<label for="pan_number" class="pb-1">PAN Number</label>
 											<!-- <span class="artisan-star">*</span> -->
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter PAN Number" name="pan_number" />
+												<input type="text" value="{{$findUser->pan_number}}" class="form-control" placeholder="Enter PAN Number" name="pan_number" />
 												@if($errors->first('pan_number'))
 													<span class="text-danger error">{{$errors->first('pan_number')}}</span>
 												@endif
@@ -336,7 +284,7 @@ span#select2-upline_id-container {
 										<div class="col-md-6">
 											<label for="bank_account_number" class="pb-1">Bank Account Number</label>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter Bank Account Number" name="bank_account_number" />
+												<input type="text" value="{{$findUser->bank_account_number}}" class="form-control" placeholder="Enter Bank Account Number" name="bank_account_number" />
 												@if($errors->first('bank_account_number'))
 													<span class="text-danger error">{{$errors->first('bank_account_number')}}</span>
 												@endif
@@ -346,7 +294,7 @@ span#select2-upline_id-container {
 										<div class="col-md-6">
 											<label for="bank_name" class="pb-1">Bank Name</label>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter Bank Name" name="bank_name" />
+												<input type="text" value="{{$findUser->bank_name}}" class="form-control" placeholder="Enter Bank Name" name="bank_name" />
 												@if($errors->first('bank_name'))
 													<span class="text-danger error">{{$errors->first('bank_name')}}</span>
 												@endif
@@ -362,7 +310,7 @@ span#select2-upline_id-container {
 										<div class="col-md-6">
 											<label for="bank_ifsc_code" class="pb-1">Bank IFSC Code</label>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter Bank IFSC Code" name="bank_ifsc_code" />
+												<input type="text" value="{{$findUser->bank_ifsc_code}}" class="form-control" placeholder="Enter Bank IFSC Code" name="bank_ifsc_code" />
 												@if($errors->first('bank_ifsc_code'))
 													<span class="text-danger error">{{$errors->first('bank_ifsc_code')}}</span>
 												@endif
@@ -372,7 +320,7 @@ span#select2-upline_id-container {
 										<div class="col-md-6">
 											<label for="bank_branch_name" class="pb-1">Bank Branch Name</label>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter Bank Branch Name" name="bank_branch_name" />
+												<input type="text" value="{{$findUser->bank_branch_name}}" class="form-control" placeholder="Enter Bank Branch Name" name="bank_branch_name" />
 												@if($errors->first('bank_branch_name'))
 													<span class="text-danger error">{{$errors->first('bank_branch_name')}}</span>
 												@endif
@@ -390,7 +338,7 @@ span#select2-upline_id-container {
 											<label for="address" class="pb-1">Address</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter Address" name="address" />
+												<input type="text" value="{{$findUser->address}}" class="form-control" placeholder="Enter Address" name="address" />
 												@if($errors->first('address'))
 													<span class="text-danger error">{{$errors->first('address')}}</span>
 												@endif
@@ -401,7 +349,7 @@ span#select2-upline_id-container {
 											<label for="country" class="pb-1">country</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter country" name="country" />
+												<input type="text" value="{{$findUser->country}}" class="form-control" placeholder="Enter country" name="country" />
 												@if($errors->first('country'))
 													<span class="text-danger error">{{$errors->first('country')}}</span>
 												@endif
@@ -419,7 +367,7 @@ span#select2-upline_id-container {
 											<label for="city" class="pb-1">city</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter city" name="city" />
+												<input type="text" value="{{$findUser->city}}" class="form-control" placeholder="Enter city" name="city" />
 												@if($errors->first('city'))
 													<span class="text-danger error">{{$errors->first('city')}}</span>
 												@endif
@@ -430,7 +378,7 @@ span#select2-upline_id-container {
 											<label for="state" class="pb-1">State</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter State" name="state" />
+												<input type="text" value="{{$findUser->state}}" class="form-control" placeholder="Enter State" name="state" />
 												@if($errors->first('state'))
 													<span class="text-danger error">{{$errors->first('state')}}</span>
 												@endif
@@ -447,33 +395,20 @@ span#select2-upline_id-container {
 											<label for="zip_code" class="pb-1">Zip Code</label>
 											<span class="artisan-star">*</span>
 											<div class="form-group pb-3">
-												<input type="text" class="form-control" placeholder="Enter Zip Code" name="zip_code" />
+												<input type="text" value="{{$findUser->zip_code}}" class="form-control" placeholder="Enter Zip Code" name="zip_code" />
 												@if($errors->first('zip_code'))
 													<span class="text-danger error">{{$errors->first('zip_code')}}</span>
 												@endif
 											</div>
 										</div>
 
-										<div class="col-md-6">
-											<label for="" class="pb-1">
-												Password
-											</label>
-											<span class="artisan-star">*</span>
-											<div class="form-group pb-3">
-												<input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" />
-
-												@if($errors->first('password'))
-												<span class="text-danger error">{{$errors->first('password')}}</span>
-												@endif()
-
-											</div>
-										</div>
+										
 								
 									</div>
 								</div>
 							
 							<div class="text-center">
-									<button type="submit" id="submit_btn" class="btn btn-warning same_wd_btn">Add</button>
+									<button type="submit" id="submit_btn" class="btn btn-warning same_wd_btn">Update</button>
 								
 							</div>
 						</form>
@@ -626,12 +561,7 @@ span#select2-upline_id-container {
         $("#validate_form").validate({
             rules : {
 				
-				sponser_id : {
-                    required : true,
-                },
-				upline_id : {
-                    required : true,
-                },
+				
             	name : {
                     required : true,
                     maxlength:30,
@@ -647,7 +577,7 @@ span#select2-upline_id-container {
                 },
 				mobile_number : {
                     required : true,
-					digits: true,
+					//digits: true,
 					maxlength:15
                 },
                 email : {
@@ -683,19 +613,11 @@ span#select2-upline_id-container {
                     required : true,
 					maxlength: 10
                 },
-                password : {
-	                required: true,
-	                minlength: 6
-              	}
+                
             },
             messages : {
 
-				sponser_id : {
-                    required : "Please select Sponser ID.",
-                },
-				upline_id : {
-                    required : "Please select Upline ID.",
-                },
+				
 				name : {
                     required : "Please enter name.",
                     maxlength: "Name should be less than 30 characters.",
@@ -742,16 +664,11 @@ span#select2-upline_id-container {
                     required : "Please enter Zip Code.",
                     maxlength: "Zip Code should be less than 10 characters or digits."
                 },
-                password : {
-                	required : "Please enter password.",
-                	minlength : "Password must be at 6 characters long."
-                }
+                
             },
             submitHandler:function(form){
 
-				if($("#upline_id").val() == "" || $("#sponser_id").val() == "") {
-					return false;
-				}
+				
 
 				$("#lodaerModal").modal("show");
                 $("#submit_btn").attr('disabled', true);
@@ -765,7 +682,8 @@ span#select2-upline_id-container {
               	var data = {
                   '_token': "{{csrf_token()}}",
                   'mobile_number': mobileNumber,
-				  'country_code': "+"+countryCode
+				  'country_code': "+"+countryCode,
+                  'user_id' : "{{$findUser->id}}"
               	};
 
               	$.ajax({
@@ -802,76 +720,10 @@ span#select2-upline_id-container {
         });
 
 
-		$("#sponser_id").on("change", function() {
-			$("#lodaerModal").modal("show");
-			let sponserIDWithName = $(this).val();
-			if(sponserIDWithName) {
-				let sponserID = sponserIDWithName.split(" ");
-				sponserID = sponserID[0];
-				let getUserURL = "{{url('admin/get-users-by-sponser')}}" + "/" + sponserID;
-				$("#sponser_id-error").css('display', 'none');
-				var dataPayload = {
-	              '_token': "{{csrf_token()}}",
-	              'custom_user_id': sponserID,
-              	};
-
-				//alert(getUserURL)
-				$.ajax({
-					url: getUserURL,
-					type:'POST',
-					data:dataPayload,
-					success: function(res){
-						let options = `<option value="">Select Upline ID</option>`;
-						let __disabledUserIds = @json($disabledUserIds);
-						
-						for(let k=0; k < res.length; k++) {
-							if(__disabledUserIds.includes(res[k])) {
-								options += `<option disabled value="`+res[k]+`">`+res[k]+`</option>`;
-							}else{
-								options += `<option value="`+res[k]+`">`+res[k]+`</option>`;
-							}
-							
-						}
-
-						$("#upline_id").html(options);
-						$("#upline_id").val("").trigger("change");
-						console.log("sssss", res)
-						setTimeout(() => {
-							$("#lodaerModal").modal("hide");
-						}, 500);
-						
-					},
-					error: function(data, textStatus, xhr) {
-					if(data.status == 422){
-						setTimeout(() => {
-							$("#lodaerModal").modal("hide");
-						}, 500);
-						var result = data.responseJSON;
-						alert('Something went worng.');
-						window.location.href = "";
-						return false;
-					} 
-					}
-				});
-			}else{
-				$("#sponser_id-error").css('display', 'block');
-				setTimeout(() => {
-					$("#lodaerModal").modal("hide");
-				}, 500);
-				$("#upline_id").val("").trigger("change");
-			}
-			
-		})
+	
 
 
-		$("#upline_id").on("change", function() {
-			let uplineIDWithName = $(this).val();
-			if(uplineIDWithName) {
-				$("#upline_id-error").css('display', 'none');
-			}else{
-				$("#upline_id-error").css('display', 'block');
-			}
-		});
+
 		$('.select2').select2();
 	});
  </script>

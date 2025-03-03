@@ -2411,13 +2411,25 @@ class UserController extends ResponseController
     public function checkExistsMobileNumber(Request $request) {
         $data = $request->all();
 
-        $checkExistsMobileNumber = User::whereDeletedAt(null)->whereMobileNumber($data['mobile_number'])->whereCountryCode($data['country_code'])->first();
+        if($data['user_id']) {
+            $checkExistsMobileNumber = User::whereDeletedAt(null)->whereMobileNumber($data['mobile_number'])->whereCountryCode($data['country_code'])->where('id', '!=', $data['user_id'])->first();
 
-        if($checkExistsMobileNumber) {
-            return 1;
+            if($checkExistsMobileNumber) {
+                return 1;
+            }else{
+                return 0;
+            }
         }else{
-            return 0;
+            $checkExistsMobileNumber = User::whereDeletedAt(null)->whereMobileNumber($data['mobile_number'])->whereCountryCode($data['country_code'])->first();
+
+            if($checkExistsMobileNumber) {
+                return 1;
+            }else{
+                return 0;
+            }
         }
+
+        
     }
 
     public function logout(Request $request){
@@ -3831,6 +3843,64 @@ class UserController extends ResponseController
         }
     
         return response()->download($filePath)->deleteFileAfterSend(true);
+    }
+
+    public function editUser(Request $request, $user_id) {
+        if($request->isMethod('GET')) {
+            $userID = base64_decode($user_id);
+            $admin = auth()->guard('admin')->user();
+            if(!$admin) {
+                return redirect(route('admin.login'));
+            }
+
+            $findUser = User::whereId($userID)->first();
+
+            return view('admin.edit-user-detail', compact('findUser'));
+        }
+
+        if($request->isMethod('POST')) {
+            $userID = base64_decode($user_id);
+            $admin = auth()->guard('admin')->user();
+            $data = $request->all();
+
+            $checkExistsMobileNumber = User::whereDeletedAt(null)->whereMobileNumber($data['mobile_number'])->whereCountryCode($data['country_code'])->where('id', '!=', $userID)->first();
+
+            if($checkExistsMobileNumber) {
+                Session::flash('danger',"Mobile Number already exists. please try with different number.");
+                return redirect()->back();
+            }
+
+            
+
+            $findUser = User::whereId($userID)->first();
+            $findUser->name = $data['name'];
+            $findUser->dob = $data['dob'];
+            $findUser->s_w_d = $data['s_w_d'];
+            $findUser->swd_name = $data['swd_name'];
+            $findUser->nomination_name = $data['nomination_name'];
+            $findUser->nomination_dob = $data['nomination_dob'];
+            $findUser->mobile_number = $data['mobile_number'];
+            $findUser->country_code = $data['country_code'];
+            $findUser->email = $data['email'];
+            $findUser->adhar_number = $data['adhar_number'];
+            $findUser->pan_number = $data['pan_number'];
+            $findUser->bank_account_number = $data['bank_account_number'];
+            $findUser->bank_name = $data['bank_name'];
+            $findUser->bank_ifsc_code = $data['bank_ifsc_code'];
+            $findUser->bank_branch_name = $data['bank_branch_name'];
+            $findUser->address = $data['address'];
+            $findUser->country = $data['country'];
+            $findUser->city = $data['city'];
+            $findUser->state = $data['state'];
+            $findUser->zip_code = $data['zip_code'];
+            $findUser->update();
+
+            Session::flash('message', 'User has been updated  successfully.');
+            return redirect(route('admin.viewUserDetails', base64_encode($userID)));
+
+            return $request->all();
+        }
+        
     }
 
 }

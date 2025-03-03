@@ -56,6 +56,8 @@ Route::group(['middleware'=>['loginAuthenticate'], 'namespace' => 'Admin','prefi
 
     Route::get('tree-view/{user_id}', [UserController::class, 'treeView'])->name('treeView');
 
+    Route::match(['GET', 'POST'],'edit-user/{user_id}', [UserController::class, 'editUser'])->name('editUser');
+
     Route::get('view/{user_id}', [UserController::class, 'viewUserDetails'])->name('viewUserDetails');
 
     Route::get('wallet-view/{wallet_id}', [UserController::class, 'viewWalletDetails'])->name('viewWalletDetails');

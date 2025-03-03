@@ -2,6 +2,19 @@
 @section('title','User Details')
 @section('content')
 
+<style>
+button.btn.btn-warning.same_wd_btn.editUser {
+background-color: #ffffff !important;
+border-color: #ffffff !important;
+margin-left: 10px;
+margin-bottom: 10px;
+}
+
+button.btn.btn-warning.same_wd_btn {
+    margin-bottom: 10px;
+}
+</style>
+
 		<div class="main-panel dashboard_panel">
 			<div class="content">
 				<div class="page-inner" style="padding-right: 12px;">
@@ -14,14 +27,21 @@
 								<!-- <li class="breadcrumb-item active" aria-current="page">Data</li> -->
 							</ol>
 						</nav>
+
+						@include('admin.layout.notification')
 					</div>
 					<h1>User Details</h1>
 
 					<div class="my-tree">
-								<a href="{{route('admin.treeView',base64_encode($userDetails->id))}}">
-									<button type="button" class="btn btn-warning same_wd_btn">View Tree</button>
-								</a>
-							</div>
+						<a href="{{route('admin.treeView',base64_encode($userDetails->id))}}">
+							<button type="button" class="btn btn-warning same_wd_btn">View Tree</button>
+						</a>
+
+						<a href="{{route('admin.editUser',base64_encode($userDetails->id))}}">
+							<button type="button" class="btn btn-warning same_wd_btn editUser">Edit User</button>
+						</a>
+
+					</div>
 
 					<div class="card">
 						<div class="card-body add_imgae_box">
