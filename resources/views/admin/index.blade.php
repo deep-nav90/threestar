@@ -35,7 +35,7 @@
 						@include('admin.layout.notification')
 					</div>
 
-
+					@if(Auth::guard('admin')->user()->is_super_admin == 1)
 					<div class="downloadDB">
 						<div class="download_db_btn">
 							<a href="{{route('admin.downloadDB')}}" target="_blank">
@@ -43,6 +43,7 @@
 							</a>
 						</div>
 					</div>
+					@endif()
 					<div class="row mt-5">
 						<div class="col-md-6 mb_bottom ">
 							<a href="javascript:void(0);" class="hover_box">
